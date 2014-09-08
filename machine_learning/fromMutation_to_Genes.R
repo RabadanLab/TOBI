@@ -17,6 +17,10 @@ mt = read.table("/Volumes/ifs/scratch/Results/GBM/final_tables/cleaned_GBM_84_te
                    stringsAsFactors = FALSE)
 
 mt$loc = paste(mt$chrom, mt$pos, sep = ":")
+mt$effect_impact = as.numeric(mt$effect_impact)
+
+genes = as.data.frame(unique(sort(mt$gene_name)))
+names(genes) = "name"
 
 # to parallelize the for loop, a matrix x is filled, and then transformed into a data frame
 time1 = Sys.time()
@@ -32,7 +36,7 @@ x = foreach(i=1:dim(genes)[1], .combine='rbind') %dopar% {
   y[7] = sum(mt$effect == "STOP_GAINED" & mt$gene_name == genes$name[i]) / sum(mt$gene_name == genes$name[i]) * 100
   y[8] = sum(mt$effect == "SYNONYMOUS_CODING" & mt$gene_name == genes$name[i]) / sum(mt$gene_name == genes$name[i]) * 100
   y[9] = mt$gene_freq[mt$gene_name == genes$name[i]][1]
-  y[10] = mt$gene_length[mt$gene_name == genes$name[i]][1]
+  y[10] = mt$amino_acid_length[mt$gene_name == genes$name[i]][1]
   y[11] = mean(mt$effect_impact[mt$gene_name == genes$name[i]])
   y[12] = median(mt$dbNSFP_MutationAssessor_score[mt$gene_name == genes$name[i]])
   y[13] = median(mt$dbNSFP_MutationTaster_score[mt$gene_name == genes$name[i]])
@@ -47,10 +51,9 @@ x = foreach(i=1:dim(genes)[1], .combine='rbind') %dopar% {
 }
 Sys.time() - time1
 
-genes2 = as.data.frame(unique(sort(mt$gene_name)))
-genes2 = cbind(genes2, as.data.frame(x))
-names(genes2) = c('name', 'tot_num_mut', 'max_num_mut_case', 'num_recur', 'num_cases', 'cosmic_nsamp', 'non_syn', 'stop_gained', 
-                  'syn', 'gene_freq', 'gene_length', 'effect_impact', 'MutationAssessor', 'MutationTaster', 'per_mut_cosmic', 
+genes = cbind(genes, as.data.frame(x))
+names(genes) = c('name', 'tot_num_mut', 'max_num_mut_case', 'num_recur', 'num_cases', 'cosmic_nsamp', 'non_syn', 'stop_gained', 
+                  'syn', 'gene_freq', 'amino_acid_length', 'effect_impact', 'MutationAssessor', 'MutationTaster', 'per_mut_cosmic', 
                   'per_mut_dbsnp', 'per_mut_none', 'per_mut_som', 'per_mut_non_som', 'num_som_cases', 'Y')
 
 table(genes$Y)

@@ -94,7 +94,6 @@ myPerf = function(data, lev = NULL, model = NULL) {
 }
 
 ##################################################################################################################
-
 library(caret)
 library(doMC)
 library(reshape)
@@ -277,7 +276,7 @@ modelInfo <- list(label = "Stochastic Gradient Boosting with Threshold Selection
 
 ##################################################################################################################
 # Formula
-my_formula = Y ~ freq + id2 + gene_freq + gene_length + num_mut_gene + case_mut_gene + pval_som + qual + tot_cosm_samp + mq + 
+my_formula = Y ~ freq + id2 + gene_freq + amino_acid_length + num_mut_gene + case_mut_gene + pval_som + qual + tot_cosm_samp + mq + 
   effect_impact + cosmic_nsamp + dbNSFP_MutationAssessor_score + dbNSFP_MutationTaster_score + 
   dbNSFP_Polyphen2_HDIV_score + dbNSFP_SIFT_score
 
@@ -397,8 +396,14 @@ if (normal == 1) {
 }
 
 ##################################################################################################################
-# Export
-write.table(mt_subset, file = "/Volumes/ifs/scratch/Results/GBM/final_tables/cleaned_GBM_104cases_filt_techn_biol.txt", 
+# Export cleaned data
+
+mydata = testing
+
+mydata$pred = predict(modboost, mydata[,-c(1:11)])
+
+
+write.table(mydata, file = "/Volumes/ifs/scratch/Results/GBM/final_tables/cleaned_GBM_84_testing_cases_filt_techn_biol_with_pred.txt", 
             sep = "\t", 
             quote = FALSE, 
             na = ".", 
