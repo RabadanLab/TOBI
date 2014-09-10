@@ -6,7 +6,7 @@ driver_mutations = function(mydata, modboost, output_plot = TRUE) {
   require(ggplot2)
   require(reshape2)
   
-  mydata$pred = predict(modboost, mydata[,-c(1:11)])
+  mydata$pred = unlist(predict(modboost[[1]], mydata[,-c(1:11)]))
   
   GBM_Recur_Mutations = c("PIK3R1", "PTEN", "PIK3CA", "TP53", "EGFR", "IDH1", "BRAF", "RB1", "NF1", "PDGFRA", "LRP2", "PPP2R3A", "FAT2",
                           "GPR116", "RIMS2", "NOS1", "PIK3C2B", "MDM4", "MYCN", "KIT", "DDIT3", "TSHZ2", "LRP1B", "CTNND2", "HCN1", "PKHD1",

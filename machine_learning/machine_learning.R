@@ -6,7 +6,7 @@ file.sources = list.files(path = "/Volumes/ifs/bin/TOBI/machine_learning/script"
                           pattern="*.R",
                           full.names = TRUE)
 for (item in file.sources) source(item)
-rm(file.sources, item, file_path)
+rm(file.sources, item)
 modelInfo = custom_gbm()
 ##################################################################################################################
 library(caret)

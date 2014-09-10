@@ -30,7 +30,7 @@ ML = function(training, testing, my_formula, my_metric = "Fscore", max_min = TRU
   n = length(training)
   
   modboost = list()
-  set.seed(123)
+#   set.seed(123)
   for (i in 1:n) {
     modboost[[i]] = train(my_formula,
                           data = training[[1]],
