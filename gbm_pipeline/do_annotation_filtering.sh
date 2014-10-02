@@ -1,7 +1,5 @@
 #!/bin/bash
 
-bamdir=/ifs/scratch/c2b2/rr_lab/ar3177/TCGA/BAM_files
-
 SNPEFF_HOME=/ifs/scratch/c2b2/rr_lab/shares/snpEff-v3.6
 SNPEFF="-jar $SNPEFF_HOME/snpEff.jar -c $SNPEFF_HOME/snpEff.config"
 SNPSIFT="-jar $SNPEFF_HOME/SnpSift.jar"
@@ -11,17 +9,19 @@ cbio=/ifs/scratch/c2b2/rr_lab/shares/ref/vcfs/cbio.fix.sort.vcf
 dbNSFP=/ifs/scratch/c2b2/rr_lab/shares/snpEff-v3.6/data/dbNSFP2.4.txt.gz
 dbNSFP_header=$(cat /ifs/home/c2b2/rr_lab/ar3177/bin/TOBI/gbm_pipeline/scripts/header_fields.txt)
 
-java7=/ifs/scratch/c2b2/rr_lab/shares/jdk1.7.0_55/bin/java
+#java7=/ifs/scratch/c2b2/rr_lab/shares/jdk1.7.0_55/bin/java
+java7=/nfs/apps/java/1.7.0_25/bin/java
 VcfQuery=/ifs/scratch/c2b2/rr_lab/shares/vcftools/bin/vcf-query
 
 vcfEffOnePerLine=/ifs/home/c2b2/rr_lab/ar3177/bin/TOBI/gbm_pipeline/scripts/vcfEffOnePerLine.pl
 PythonParsing=/ifs/home/c2b2/rr_lab/ar3177/bin/TOBI/gbm_pipeline/scripts/parse_tsv.py
 vcf2report=/ifs/home/c2b2/rr_lab/ar3177/bin/TOBI/gbm_pipeline/scripts/vcf2report.py
 
-filter_indel=/ifs/home/c2b2/rr_lab/ar3177/bin/TOBI/gbm_pipeline/scripts/filter_indel.R
-filter_techn=/ifs/home/c2b2/rr_lab/ar3177/bin/TOBI/gbm_pipeline/scripts/filter_techn.R
-filter_biol=/ifs/home/c2b2/rr_lab/ar3177/bin/TOBI/gbm_pipeline/scripts/filter_biol.R
+#filter_indel=/ifs/home/c2b2/rr_lab/ar3177/bin/TOBI/gbm_pipeline/scripts/filter_indel_inc.R
+#filter_techn=/ifs/home/c2b2/rr_lab/ar3177/bin/TOBI/gbm_pipeline/scripts/filter_techn.R
+#filter_biol=/ifs/home/c2b2/rr_lab/ar3177/bin/TOBI/gbm_pipeline/scripts/filter_biol.R
 
+filter_indel_techn_biol=/ifs/home/c2b2/rr_lab/ar3177/bin/TOBI/gbm_pipeline/scripts/filter_indel_techn_biol.R
 
 java_memory=6
 #stepstr=BAF
@@ -69,6 +69,10 @@ do
 		shift; 
 		filter=$1; 
 		shift
+	elif [  "$1" == "--memory" ]; then
+		shift; 
+		java_memory=$1; 
+		shift
 	else	
 		# if unknown argument, just shift
 		shift
@@ -80,6 +84,7 @@ echo "[pwd] "`pwd`
 echo "[date] "`date`
 echo "[input_file] "$inputfile
 echo "[output_dir] "$outputdir
+echo "[java_memory] "$java_memory
 echo "[steps] "$stepstr
 echo "[filter] "$filter
 
@@ -100,8 +105,6 @@ then
 		> ${outputdir}/${inputfile}.eff.dbSNP.clinvar.cosmic.vcf
 	${java7} -Xmx${java_memory}G  $SNPSIFT annotate $super_normal -v ${outputdir}/${inputfile}.eff.dbSNP.clinvar.cosmic.vcf \
 		> ${outputdir}/${inputfile}.eff.dbSNP.clinvar.cosmic.meganormal1.vcf
-#	${java7} -Xmx${java_memory}G  $SNPSIFT annotate $super_normal2 -v ${outputdir}/${inputfile}.eff.dbSNP.clinvar.cosmic.meganormal1.vcf \
-#		> ${outputdir}/${inputfile}.eff.dbSNP.clinvar.cosmic.meganormal1.2.vcf
 	${java7} -Xmx${java_memory}G  $SNPSIFT annotate $cbio -v ${outputdir}/${inputfile}.eff.dbSNP.clinvar.cosmic.meganormal1.vcf \
 		> ${outputdir}/${inputfile}.eff.dbSNP.clinvar.cosmic.meganormal1.cbio.vcf
 	${java7} -Xmx${java_memory}G  $SNPSIFT dbnsfp $dbNSFP -v -f $dbNSFP_header ${outputdir}/${inputfile}.eff.dbSNP.clinvar.cosmic.meganormal1.cbio.vcf \
@@ -134,15 +137,22 @@ then
 		${outputdir}/${inputfile}.all.annotations_not_filt.tsv
 	
 	echo "Applying filters"
-	R --slave -f ${filter_indel} --args \
+	# Applying each filter seperately
+#	Rscript ${filter_indel} \
+#		${outputdir}/${inputfile}.all.annotations_not_filt.tsv \
+#		${outputdir}/${inputfile}.all.annotations_filt_indel.tsv
+#	Rscript ${filter_techn} \
+#		${outputdir}/${inputfile}.all.annotations_filt_indel.tsv \
+#		${outputdir}/${inputfile}.all.annotations_filt_indel_techn.tsv
+#	Rscript ${filter_biol} \
+#		${outputdir}/${inputfile}.all.annotations_filt_indel_techn.tsv \
+#		${outputdir}/${inputfile}.all.annotations_filt_indel_techn_biol.tsv
+	
+	# Applying all filters together
+	Rscript ${filter_indel_techn_biol} \
 		${outputdir}/${inputfile}.all.annotations_not_filt.tsv \
-		${outputdir}/${inputfile}.all.annotations_filt_indel.tsv
-	R --slave -f ${filter_techn} --args \
-		${outputdir}/${inputfile}.all.annotations_filt_indel.tsv \
-		${outputdir}/${inputfile}.all.annotations_filt_indel_techn.tsv
-	R --slave -f ${filter_biol} --args \
-		${outputdir}/${inputfile}.all.annotations_filt_indel_techn.tsv \
 		${outputdir}/${inputfile}.all.annotations_filt_indel_techn_biol.tsv
+	
 	
 	echo "[date 4] "`date`;
 fi

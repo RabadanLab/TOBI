@@ -10,7 +10,7 @@ Annotation_Filtering=/ifs/home/c2b2/rr_lab/ar3177/bin/TOBI/gbm_pipeline/do_annot
 outputdir=.					# output directory
 java_memory=6					# memory of the Java virtual mach in Gigabytes
 patient="patient" 				# patient name
-SGE_TASK_ID=0					# index of region
+#SGE_TASK_ID=0					# index of region
 debug=0						# bool to turn on debugging
 #stepstr=BAF					# what steps to run. B: bamtools, A: annotation, F: filtering
 
@@ -96,7 +96,7 @@ do
 		debug=1; 
 	elif [  "$1" == "-index" -o "$1" == "--index" ]; then
 		shift; 
-		SGE_TASK_ID=$1; 
+#		SGE_TASK_ID=$1; 
 		shift
 	elif [  "$1" == "-bam" -o "$1" == "--bam" ]; then
 		shift; 
@@ -122,6 +122,7 @@ echo "[steps] "$stepstr
 echo "[debug] "$debug
 echo "[bam files] "$input_bam
 echo "[scripts dir] "$software
+echo "[SGE_TASK_ID] "$SGE_TASK_ID
 
 mkdir -p ${outputdir}
 
@@ -234,7 +235,7 @@ fi
 if [[ $stepstr == *A* ]] || [[ $stepstr == *F* ]]
 then
 	# Calling annotation and filtering script
-	$Annotation_Filtering -i ${outputdir}/vcffiles_${SGE_TASK_ID}/raw_${SGE_TASK_ID}.vcf -s $stepstr
+	$Annotation_Filtering -i ${outputdir}/vcffiles_${SGE_TASK_ID}/raw_${SGE_TASK_ID}.vcf -s $stepstr --memory ${java_memory}
 fi
 
 time2=$( date "+%s" )
