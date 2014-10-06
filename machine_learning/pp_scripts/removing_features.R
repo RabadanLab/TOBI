@@ -1,7 +1,7 @@
 removing_features = function(mt) {
-    mt$indel = NULL
-    mt$is_1 = NULL
-    mt$is_2 = NULL
+    #mt$indel = NULL
+    #mt$is_1 = as.numeric(mt$is_1)
+    #mt$is_2 = as.numeric(mt$is_2)
     mt$common = NULL
     mt$g5 = NULL
     mt$g5a = NULL

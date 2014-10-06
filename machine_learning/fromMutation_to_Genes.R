@@ -10,7 +10,10 @@ GBM_Recur_Mutations = c("PIK3R1", "PTEN", "PIK3CA", "TP53", "EGFR", "IDH1", "BRA
                         "GPR116", "RIMS2", "NOS1", "PIK3C2B", "MDM4", "MYCN", "KIT", "DDIT3", "TSHZ2", "LRP1B", "CTNND2", "HCN1", "PKHD1",
                         "TEK", "PCNX", "HERC2", "LZTR1", "BCOR", "ATRX", "PCDH11X", "CDK4", "CDKN2A")
 
-mt = read.table("/Volumes/ifs/scratch/Results/GBM/final_tables/cleaned_GBM_84_testing_cases_filt_techn_biol_with_pred.txt", 
+loc = "/Volumes/ifs"
+file_path = paste(loc, "/scratch/Results/GBM/final_tables/cleaned_GBM_84_testing_cases_filt_techn_biol_with_pred.txt", 
+                  sep = "")
+mt = read.table(file_path, 
                    sep = "\t", 
                    header = TRUE, 
                    fill = TRUE, 
@@ -18,6 +21,7 @@ mt = read.table("/Volumes/ifs/scratch/Results/GBM/final_tables/cleaned_GBM_84_te
 
 mt$loc = paste(mt$chrom, mt$pos, sep = ":")
 mt$effect_impact = as.numeric(mt$effect_impact)
+num_cases = length(unique(mt$case))
 
 genes = as.data.frame(unique(sort(mt$gene_name)))
 names(genes) = "name"
@@ -45,8 +49,9 @@ x = foreach(i=1:dim(genes)[1], .combine='rbind') %dopar% {
   y[16] = sum(mt$id2 ==  1 & mt$gene_name == genes$name[i]) / sum(mt$gene_name == genes$name[i]) * 100
   y[17] = sum(mt$pred == "som" & mt$gene_name == genes$name[i]) / sum(mt$gene_name == genes$name[i]) * 100
   y[18] = sum(mt$pred == "non_som" & mt$gene_name == genes$name[i]) / sum(mt$gene_name == genes$name[i]) * 100
-  y[19] = length(mt$case[mt$gene_name == genes$name[i] & mt$pred == "som"])
-  y[20] = any(genes$name[i] == GBM_Recur_Mutations)
+  y[19] = length(mt$case[mt$gene_name == genes$name[i] & mt$pred == "som"]) / num_cases * 100
+  y[20] = length(mt$case[mt$gene_name == genes$name[i] & mt$Y == "som"]) / num_cases * 100
+  y[21] = any(genes$name[i] == GBM_Recur_Mutations)
   y
 }
 Sys.time() - time1
@@ -54,9 +59,10 @@ Sys.time() - time1
 genes = cbind(genes, as.data.frame(x))
 names(genes) = c('name', 'tot_num_mut', 'max_num_mut_case', 'num_recur', 'num_cases', 'cosmic_nsamp', 'non_syn', 'stop_gained', 
                   'syn', 'gene_freq', 'amino_acid_length', 'effect_impact', 'MutationAssessor', 'MutationTaster', 'per_mut_cosmic', 
-                  'per_mut_dbsnp', 'per_mut_none', 'per_mut_som', 'per_mut_non_som', 'num_som_cases', 'Y')
+                  'per_mut_dbsnp', 'per_mut_none', 'per_mut_som', 'per_mut_non_som', 'per_pred_som_cases', 'per_act_som_cases', 'driver_gene')
 
-table(genes$Y)
+table(genes$driver_gene)
 
-write.table(genes, file = "/Volumes/ifs/scratch/Results/GBM/final_tables/genes_GBM_84_testing_cases.txt", sep = "\t", quote = FALSE, na = ".", row.names = FALSE)
+output_path = paste(loc, "/scratch/Results/GBM/final_tables/genes_GBM_84_testing_cases.txt", sep = "")
+write.table(genes, file = output_path, sep = "\t", quote = FALSE, na = ".", row.names = FALSE)
 

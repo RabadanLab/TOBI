@@ -1,9 +1,10 @@
 #!/bin/bash
 
 dir=/ifs/home/c2b2/rr_lab/ar3177/scratch/Results/GBM
-outputdir=/ifs/home/c2b2/rr_lab/ar3177/scratch/Results
+outputdir=/ifs/home/c2b2/rr_lab/ar3177/scratch/Results/GBM/Done
 
-not_present=/ifs/home/c2b2/rr_lab/ar3177/scratch/Results/Finding_lost_mutations/missed_TCGA_06_5410.txt
+#not_present=/ifs/home/c2b2/rr_lab/ar3177/scratch/Results/Finding_lost_mutations/missed_TCGA_06_5410.txt
+not_present=/ifs/home/c2b2/rr_lab/ar3177/scratch/Results/GBM/Finding_lost_mutations/missed_mutations.txt
 
 # not_present.txt is a list of TCGA mutations not present in the final mutations table from our pipeline. It consists of "gene" "case_name" "chr" "pos".
 

@@ -5,17 +5,21 @@ main = function(filepath, outputpath) {
                   sep = "\t", 
                   header = TRUE, 
                   stringsAsFactors = FALSE)
-
-  mt = mt[mt$common != "1" &
-            mt$g5a == "." & 
-            mt$g5 == "." &
-            mt$meganormal_id == "." &
-            mt$effect != "." &
-            mt$effect != "INTRAGENIC" &
-            mt$effect != "EXON" &
-            mt$effect != "SPLICE_SITE_REGION", ]
   
-  write.table(mt,
+  mt$ref_len = sapply(mt$ref, nchar)
+  mt$alt_len = sapply(mt$alt, nchar)
+  
+  mt$del = as.numeric(mt$ref_len > mt$alt_len)
+  mt$pos = mt$pos + mt$del
+
+  mt$ref_len = NULL
+  mt$alt_len = NULL
+  mt$del = NULL
+  if (length(grep("^X", colnames(mt)))) {
+    mt = mt[, - grep("^X", colnames(mt))]
+  }
+  
+  write.table(mt, 
               outputpath, 
               sep = "\t", 
               quote = FALSE, 

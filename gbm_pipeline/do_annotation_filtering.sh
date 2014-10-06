@@ -122,19 +122,19 @@ then
 	echo "[STEP3] filtering"
 	
 	# Replacing ++ characters
-	cat ${outputdir}/${inputfile}.all.annotations.vcf | sed 's/GERP++/GERP/g' > ${outputdir}/${inputfile}.all.annotations.rep.vcf
-	
-	echo "python vcf2report and parse_tsv"
-	
-	case_name=$(echo ${outputdir} | awk -F'/' '{print $(NF-2)}')
-	echo ${case_name}
-	
-	# Replacing # and ' characters
-	cat ${outputdir}/${inputfile}.all.annotations.rep.vcf | \
-		${vcf2report} 0 | \
-		${PythonParsing} ${case_name} | \
-		sed -e "s/#//g;s/'//g" > \
-		${outputdir}/${inputfile}.all.annotations_not_filt.tsv
+#	cat ${outputdir}/${inputfile}.all.annotations.vcf | sed 's/GERP++/GERP/g' > ${outputdir}/${inputfile}.all.annotations.rep.vcf
+#	
+#	echo "python vcf2report and parse_tsv"
+#	
+#	case_name=$(echo ${outputdir} | awk -F'/' '{print $(NF-2)}')
+#	echo ${case_name}
+#	
+#	# Replacing # and ' characters
+#	cat ${outputdir}/${inputfile}.all.annotations.rep.vcf | \
+#		${vcf2report} 0 | \
+#		${PythonParsing} ${case_name} | \
+#		sed -e "s/#//g;s/'//g" > \
+#		${outputdir}/${inputfile}.all.annotations_not_filt.tsv
 	
 	echo "Applying filters"
 	# Applying each filter seperately

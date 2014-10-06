@@ -12,22 +12,20 @@ main = function(filepath, outputpath) {
     mt = read.table(filepath,
                     sep = "\t", 
                     header = FALSE, 
+                    quote = "",
                     stringsAsFactors = FALSE,
                     skip = 1)
     colnames(mt) = header
   } else {
     mt = read.table(filepath,
                     sep = "\t", 
-                    header = TRUE, 
+                    header = TRUE,
+                    quote = "",
                     stringsAsFactors = FALSE)
   }
   
   # Correcting the indels position to be compatible with Cbio
-  mt$ref_len = sapply(mt$ref, nchar)
-  mt$alt_len = sapply(mt$alt, nchar)
-  
-  mt$del = as.numeric(mt$ref_len > mt$alt_len)
-  mt$pos = mt$pos + mt$del
+  mt$pos = mt$pos + as.numeric(nchar(mt$ref) > nchar(mt$alt))
   
   # Applying techn filter
   mt$qual = as.numeric(mt$qual)
@@ -56,10 +54,12 @@ main = function(filepath, outputpath) {
             mt$effect != "EXON" &
             mt$effect != "SPLICE_SITE_REGION", ]
   
+  # To remove the src from old cases
+  if ("src" %in% colnames(mt)) {
+    mt$src = NULL
+  }
+  
   # Removing redundant columns
-  mt$ref_len = NULL
-  mt$alt_len = NULL
-  mt$del = NULL
   if (length(grep("^X", colnames(mt)))) {
     mt = mt[, - grep("^X", colnames(mt))]
   }
