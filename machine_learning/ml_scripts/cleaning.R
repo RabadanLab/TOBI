@@ -1,5 +1,6 @@
 cleaning = function(x, indel = FALSE) {
-  # this function gets the mutation list AFTER pre-processing step, anc "cleans" it for machine learning step
+  # this function gets the mutation list AFTER pre-processing step, 
+  # and "cleans" it for machine learning step
   # x is the dataframe
   # the output is the cleaned dataframe
   
@@ -17,8 +18,6 @@ cleaning = function(x, indel = FALSE) {
   }
   y = subset(x, select = param)
   
-  y$Y[y$Y == 0] = "non_som"
-  y$Y[y$Y == 1] = "som"
   y$Y = as.factor(y$Y)
   y$Y = factor(y$Y, levels = c("som", "non_som"))
   
@@ -28,11 +27,7 @@ cleaning = function(x, indel = FALSE) {
   y$warnings = as.numeric(y$warnings)
   y$qual = as.numeric(y$qual)
   
-  columns = c("amino_acid_length", "dbNSFP_MutationAssessor_score",
-              "dbNSFP_MutationTaster_score", "cosmic_nsamp",
-              "dbNSFP_1000Gp1", "dbNSFP_CADD_phred", "dbNSFP_FATHMM_score",
-              "dbNSFP_Polyphen2_HDIV_score", "dbNSFP_Polyphen2_HVAR_score",
-              "dbNSFP_RadialSVM_score", "dbNSFP_SIFT_score")
+  columns = c("amino_acid_length", "cosmic_nsamp")
   
   if (indel) {
     columns = c(columns, "indel", "is_1", "is_2")
