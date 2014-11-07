@@ -1,36 +1,14 @@
 #!/bin/bash
 
-SNPEFF_HOME=/ifs/scratch/c2b2/rr_lab/shares/snpEff-v3.6
-SNPEFF="-jar $SNPEFF_HOME/snpEff.jar -c $SNPEFF_HOME/snpEff.config"
-SNPSIFT="-jar $SNPEFF_HOME/SnpSift.jar"
-cosmic_variants=/ifs/scratch/c2b2/rr_lab/shares/ref/COSMIC/CosmicVariants_v66_20130725.vcf 
-super_normal=/ifs/scratch/c2b2/rr_lab/jw2983/mutation_only_tumor/meganormal/219normals.cosmic.hitless100.noExactMut.mutless5000.all_samples.vcf
-cbio=/ifs/scratch/c2b2/rr_lab/shares/ref/vcfs/cbio.fix.sort.vcf
-dbNSFP=/ifs/scratch/c2b2/rr_lab/shares/snpEff-v3.6/data/dbNSFP2.4.txt.gz
-dbNSFP_header=$(cat /ifs/home/c2b2/rr_lab/ar3177/bin/TOBI/gbm_pipeline/scripts/header_fields.txt)
-
-#java7=/ifs/scratch/c2b2/rr_lab/shares/jdk1.7.0_55/bin/java
-java7=/nfs/apps/java/1.7.0_25/bin/java
-VcfQuery=/ifs/scratch/c2b2/rr_lab/shares/vcftools/bin/vcf-query
-
-vcfEffOnePerLine=/ifs/home/c2b2/rr_lab/ar3177/bin/TOBI/gbm_pipeline/scripts/vcfEffOnePerLine.pl
-PythonParsing=/ifs/home/c2b2/rr_lab/ar3177/bin/TOBI/gbm_pipeline/scripts/parse_tsv.py
-vcf2report=/ifs/home/c2b2/rr_lab/ar3177/bin/TOBI/gbm_pipeline/scripts/vcf2report.py
-
-#filter_indel=/ifs/home/c2b2/rr_lab/ar3177/bin/TOBI/gbm_pipeline/scripts/filter_indel_inc.R
-#filter_techn=/ifs/home/c2b2/rr_lab/ar3177/bin/TOBI/gbm_pipeline/scripts/filter_techn.R
-#filter_biol=/ifs/home/c2b2/rr_lab/ar3177/bin/TOBI/gbm_pipeline/scripts/filter_biol.R
-
-filter_indel_techn_biol=/ifs/home/c2b2/rr_lab/ar3177/bin/TOBI/gbm_pipeline/scripts/filter_indel_techn_biol.R
-
+### default variables
 java_memory=6
-#stepstr=BAF
 filter=on
 
+###
 helpmessage=$( cat <<EOF
 Usage:
 
-~/myScripts/do_annotation_filtering.sh -i inputfile -s AF -f on
+do_annotation_filtering.sh -i inputfile -s AF -f on
 
 Required Arguments:
 
@@ -65,6 +43,10 @@ do
 		shift; 
 		stepstr=$1; 
 		shift
+	elif [  "$1" == "--config_file" ]; then
+		shift; 
+		config=$1; 
+		shift
 	elif [  "$1" == "-f" -o "$1" == "--filter" ]; then
 		shift; 
 		filter=$1; 
@@ -87,19 +69,23 @@ echo "[output_dir] "$outputdir
 echo "[java_memory] "$java_memory
 echo "[steps] "$stepstr
 echo "[filter] "$filter
+echo "[config file] "$config
 
+# Reading in the config file
+source ${config}
 
 if [[ $stepstr == *A* ]]
 then
 	echo "[STEP2] annotation"
 	### SnpEff
+	dbNSFP_header=$(cat ${dbNSFP_header})
 
 	${java7} -Xmx${java_memory}G $SNPEFF GRCh37.71 -noStats -v -lof \
 		-canon -no-downstream -no-intergenic -no-intron -no-upstream -no-utr ${outputdir}/${inputfile} \
 		> ${outputdir}/${inputfile}.eff.vcf
-	${java7} -Xmx${java_memory}G $SNPSIFT annotate $SNPEFF_HOME/dbSnp138.vcf -v ${outputdir}/${inputfile}.eff.vcf \
+	${java7} -Xmx${java_memory}G $SNPSIFT annotate $dbSnp138 -v ${outputdir}/${inputfile}.eff.vcf \
 		> ${outputdir}/${inputfile}.eff.dbSNP.vcf
-	${java7} -Xmx${java_memory}G $SNPSIFT annotate $SNPEFF_HOME/clinvar_20140303.vcf -v ${outputdir}/${inputfile}.eff.dbSNP.vcf \
+	${java7} -Xmx${java_memory}G $SNPSIFT annotate $clinvar -v ${outputdir}/${inputfile}.eff.dbSNP.vcf \
 		> ${outputdir}/${inputfile}.eff.dbSNP.clinvar.vcf
 	${java7} -Xmx${java_memory}G $SNPSIFT annotate $cosmic_variants -v ${outputdir}/${inputfile}.eff.dbSNP.clinvar.vcf \
 		> ${outputdir}/${inputfile}.eff.dbSNP.clinvar.cosmic.vcf
@@ -122,37 +108,28 @@ then
 	echo "[STEP3] filtering"
 	
 	# Replacing ++ characters
-#	cat ${outputdir}/${inputfile}.all.annotations.vcf | sed 's/GERP++/GERP/g' > ${outputdir}/${inputfile}.all.annotations.rep.vcf
-#	
-#	echo "python vcf2report and parse_tsv"
-#	
-#	case_name=$(echo ${outputdir} | awk -F'/' '{print $(NF-2)}')
-#	echo ${case_name}
-#	
-#	# Replacing # and ' characters
-#	cat ${outputdir}/${inputfile}.all.annotations.rep.vcf | \
-#		${vcf2report} 0 | \
-#		${PythonParsing} ${case_name} | \
-#		sed -e "s/#//g;s/'//g" > \
-#		${outputdir}/${inputfile}.all.annotations_not_filt.tsv
+	cat ${outputdir}/${inputfile}.all.annotations.vcf | sed 's/GERP++/GERP/g' > ${outputdir}/${inputfile}.all.annotations.rep.vcf
 	
-	echo "Applying filters"
-	# Applying each filter seperately
-#	Rscript ${filter_indel} \
-#		${outputdir}/${inputfile}.all.annotations_not_filt.tsv \
-#		${outputdir}/${inputfile}.all.annotations_filt_indel.tsv
-#	Rscript ${filter_techn} \
-#		${outputdir}/${inputfile}.all.annotations_filt_indel.tsv \
-#		${outputdir}/${inputfile}.all.annotations_filt_indel_techn.tsv
-#	Rscript ${filter_biol} \
-#		${outputdir}/${inputfile}.all.annotations_filt_indel_techn.tsv \
-#		${outputdir}/${inputfile}.all.annotations_filt_indel_techn_biol.tsv
+	echo "python vcf2report and parse_tsv"
 	
-	# Applying all filters together
-	Rscript ${filter_indel_techn_biol} \
-		${outputdir}/${inputfile}.all.annotations_not_filt.tsv \
-		${outputdir}/${inputfile}.all.annotations_filt_indel_techn_biol.tsv
+	case_name=$(echo ${outputdir} | awk -F'/' '{print $(NF-2)}')
+	echo ${case_name}
 	
+	# Replacing # and ' characters
+	cat ${outputdir}/${inputfile}.all.annotations.rep.vcf | \
+		${vcf2report} 0 | \
+		${PythonParsing} ${case_name} | \
+		sed -e "s/#//g;s/'//g" > \
+		${outputdir}/${inputfile}.all.annotations_not_filt.tsv
+	
+	if [[ ${filter} == on ]]
+	then
+		echo "Applying filters"
+		# Applying all filters together
+		Rscript ${filter_indel_techn_biol} \
+			${outputdir}/${inputfile}.all.annotations_not_filt.tsv \
+			${outputdir}/${inputfile}.all.annotations_filt_indel_techn_biol.tsv
+	fi
 	
 	echo "[date 4] "`date`;
 fi

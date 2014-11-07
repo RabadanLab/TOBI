@@ -27,34 +27,9 @@ number_samples = 1
 
 # boolean isfirst? if yes, we print the header once and turn off
 isfirst = 1
-# boolean verbose header
-# verboseheader = 1  
 
 # read file
 contents = sys.stdin.read().split("\n")
-
-# the idea: get all the possible keys in d_info with one run thro the file
-# then run thro the file again and use d_info
-# going thro the file twice is perhaps not the most efficient way, 
-# but the final report should be small
-# for line in contents: 
-# 
-# 	# skip header lines with double # 
-# 	if ( line[0:2] == "##" ):
-# 		pass;
-# 	# header
-# 	elif ( line[0:1] == "#" ):
-# 		header = line.split("\t")
-# 		# get the number of samples
-# 		number_samples = len(header) - 9
-# 	# non-empty line
-# 	elif ( line ):
-# 		# for elts in INFO field, make a dict
-# 		for x in line.split("\t")[7].split(";"): 
-# 			# pattern must be: blob=blog or we wont consider
-# 			if (re.search(r'(\w+)=(\w+)', x)):
-# 				d_info[x.split("=")[0]] = "."
-# 		format = line.split("\t")[8].split(":")
 
 # loop thro the file a second time
 for line in contents: 
@@ -92,9 +67,9 @@ for line in contents:
 			print("\t".join(list_lower(sorted(d_info))) + "\t"),
 
 			# print FORMAT part of header
-			for i in range(1,1+number_samples): 
-				myjoiner = "_" + str(i) + "\t"
-				print(myjoiner.join(list_lower(format)) + "_" + str(i) + "\t"),
+#			for i in range(1,1+number_samples): 
+#				myjoiner = "_" + str(i) + "\t"
+#				print(myjoiner.join(list_lower(format)) + "_" + str(i) + "\t"),
 
 			print("\n"),
 
@@ -127,8 +102,8 @@ for line in contents:
 		print("\t"),
 
 		# print FORMAT part of header
-		for i in range(9,9+number_samples): 
-			print("\t".join(linelist[i].split(":")) + "\t"),
+#		for i in range(9,9+number_samples): 
+#			print("\t".join(linelist[i].split(":")) + "\t"),
 
 		print("\n"),
 	

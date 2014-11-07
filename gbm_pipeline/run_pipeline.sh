@@ -1,18 +1,10 @@
 #!/bin/bash
 
 ### default variables
-
-#VarScan=/ifs/scratch/c2b2/rr_lab/shares/VarScan/VarScan.v2.3.6.jar
-BcfTools=/ifs/home/c2b2/rr_lab/shares/bin/samtools-0.1.19/bcftools/bcftools
-ref=/ifs/home/c2b2/rr_lab/ar3177/shares_scratch/ref/hg19/downloads/homo_sapiens_assembly19/Homo_sapiens_assembly19.fasta
-Annotation_Filtering=/ifs/home/c2b2/rr_lab/ar3177/bin/TOBI/gbm_pipeline/do_annotation_filtering.sh
-
 outputdir=.					# output directory
 java_memory=6					# memory of the Java virtual mach in Gigabytes
 patient="patient" 				# patient name
-#SGE_TASK_ID=0					# index of region
 debug=0						# bool to turn on debugging
-#stepstr=BAF					# what steps to run. B: bamtools, A: annotation, F: filtering
 
 helpmessage=$( cat <<EOF
 Usage:
@@ -44,7 +36,7 @@ This scripts assumes that you have only one tumor bam file which is mapped to hu
 If this is not so, you must change the genome reference as well as the genome partition.
 This scripts also assumes that Samtools, bgzip, tabix are in your PATH.
 Also, this script uses hard-wired path to SnpEff.
-You should change these at the top of this script to reflect their paths on your system.
+You should change these to reflect their paths on your system.
 
 EOF
 )
@@ -66,10 +58,6 @@ do
 	elif [  "$1" == "-outputdir" -o "$1" == "--outputdir" ]; then
 		shift; 
 		outputdir=$1; 
-		shift
-	elif [  "$1" == "-scripts" -o "$1" == "--scripts" ]; then
-		shift; 
-		software=$1; 
 		shift
 	elif [  "$1" == "-patient" -o "$1" == "--patient" ]; then
 		shift; 
@@ -98,6 +86,14 @@ do
 		shift; 
 #		SGE_TASK_ID=$1; 
 		shift
+	elif [  "$1" == "--config_file" ]; then
+		shift; 
+		config=$1; 
+		shift
+	elif [  "$1" == "-annot_filt" -o "$1" == "--annot_filt" ]; then
+		shift; 
+		Annotation_Filtering=$1;
+		shift
 	elif [  "$1" == "-bam" -o "$1" == "--bam" ]; then
 		shift; 
 		input_bam=$1; 
@@ -121,8 +117,11 @@ echo "[patient] "$patient
 echo "[steps] "$stepstr
 echo "[debug] "$debug
 echo "[bam files] "$input_bam
-echo "[scripts dir] "$software
+echo "[config file] "$config
 echo "[SGE_TASK_ID] "$SGE_TASK_ID
+
+# sourcing other variables
+source ${config}
 
 mkdir -p ${outputdir}
 
@@ -216,7 +215,6 @@ else
 	regionflag="-r $c";
 fi
 
-
 if [[ $stepstr == *B* ]]
 then
 	echo "[STEP1] pileup>bcftools"
@@ -224,7 +222,7 @@ then
 	mkdir -p ${outputdir}/vcffiles_${SGE_TASK_ID}
 	
 	# For one sample only
-	samtools mpileup -d 100000 -L 100000 -q 10 ${regionflag} -uf $ref ${input_bam} \
+	samtools mpileup -d 100000 -L 100000 -q 10 ${regionflag} -uf ${ref} ${input_bam} \
 		| $BcfTools view -p 1.1 -bvcg - \
 		| $BcfTools view - \
 		> ${outputdir}/vcffiles_${SGE_TASK_ID}/raw_${SGE_TASK_ID}.vcf;
@@ -235,7 +233,8 @@ fi
 if [[ $stepstr == *A* ]] || [[ $stepstr == *F* ]]
 then
 	# Calling annotation and filtering script
-	$Annotation_Filtering -i ${outputdir}/vcffiles_${SGE_TASK_ID}/raw_${SGE_TASK_ID}.vcf -s $stepstr --memory ${java_memory}
+	${Annotation_Filtering} --input-file ${outputdir}/vcffiles_${SGE_TASK_ID}/raw_${SGE_TASK_ID}.vcf \
+		-s $stepstr --memory ${java_memory} --filter on --config_file ${config}
 fi
 
 time2=$( date "+%s" )
