@@ -9,7 +9,16 @@
 
 # To read all the variables needed
 # Make sure to modify the config file accordingly
-config=/ifs/home/c2b2/rr_lab/ar3177/bin/aws/gbm_pipeline/tobi_config_hpc.sh
+
+if [[ -e /opt/TOBI/gbm_pipeline/tobi_config_amazon.sh ]]
+then
+	# on Amazon
+	config=/opt/TOBI/gbm_pipeline/tobi_config_amazon.sh
+else
+	# on HPC
+	config=/ifs/home/c2b2/rr_lab/ar3177/bin/aws/gbm_pipeline/tobi_config_hpc.sh
+fi
+
 source ${config}
 
 # flag=BAF
