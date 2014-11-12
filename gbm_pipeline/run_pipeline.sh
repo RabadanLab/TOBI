@@ -95,11 +95,13 @@ do
 		shift; 
 		Annotation_Filtering=$1;
 		shift
+	elif [  "$1" == "-filter" -o "$1" == "--filter" ]; then
+		shift; 
+		filter=$1;
+		shift
 	elif [  "$1" == "-bam" -o "$1" == "--bam" ]; then
 		shift; 
 		input_bam=$1; 
-		# replace commas w spaces
-		# input_bam=$( echo $input_bam | sed 's|,| |g' ) 
 		shift
 	else	# if unknown argument, just shift
 		shift
@@ -235,7 +237,7 @@ if [[ $stepstr == *A* ]] || [[ $stepstr == *F* ]]
 then
 	# Calling annotation and filtering script
 	${Annotation_Filtering} --input-file ${outputdir}/vcffiles_${SGE_TASK_ID}/raw_${SGE_TASK_ID}.vcf \
-		-s $stepstr --memory ${java_memory} --filter on --config_file ${config}
+		-s $stepstr --memory ${java_memory} --filter ${filter} --config_file ${config}
 fi
 
 time2=$( date "+%s" )

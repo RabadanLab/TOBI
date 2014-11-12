@@ -14,10 +14,10 @@ helpmessage=$( cat <<EOF
 Usage example:
 
 For hpc:
-	$0 --config /ifs/home/c2b2/rr_lab/ar3177/bin/TOBI/gbm_pipeline/tobi_config_hpc.sh --steps B --bam 1 -s 1 -e 73 --cluster hpc
+	$0 --config /ifs/home/c2b2/rr_lab/ar3177/bin/TOBI/gbm_pipeline/tobi_config_hpc.sh --steps B --bam all -s 1 -e 73 --cluster hpc
 
 For amazon:
-	$0 --config /Results/TOBI/gbm_pipeline/tobi_config_hpc.sh --steps AF -s 30 -e 30 --cluster amazon
+	$0 --config /Results/TOBI/gbm_pipeline/tobi_config_amazon.sh --steps B -bam 1 -s 30 -e 30 --cluster amazon
 
 Required Arguments:
 
@@ -82,6 +82,16 @@ do
 	fi
 done
 
+echo "[start]"
+echo "[pwd] "`pwd`
+echo "[date] "`date`
+echo "[config] "$config
+echo "[steps] "$flag
+echo "[bam] "$bam
+echo "[start] "$s
+echo "[end] "$e
+echo "[cluster] "$cluster
+
 source ${config}
 
 if [[ ${flag} == *A* ]]
@@ -121,13 +131,14 @@ do
 			-N A-${short_case_name} -cwd -l mem=${mem},time=${tim}:: \
 			${script} --bam ${BAM_file} --annot_filt ${Annotation_Filtering} --patient ${case_name} --ref ${ref} \
 			--steps ${flag} --outputdir ${main_outputdir}/${case_name}/output_folder --memory ${java_mem} \
-			--config_file ${config}
+			--config_file ${config} --filter on
 	elif [[ ${cluster} == amazon ]]
+	then
 		qsub -t $s-$e -V -e ${main_outputdir}/${case_name}/logs -o ${main_outputdir}/${case_name}/logs \
 			-N A-${short_case_name} -cwd \
 			${script} --bam ${BAM_file} --annot_filt ${Annotation_Filtering} --patient ${case_name} --ref ${ref} \
 			--steps ${flag} --outputdir ${main_outputdir}/${case_name}/output_folder --memory ${java_mem} \
-			--config_file ${config}
+			--config_file ${config} --filter on
 	else
 		echo "Error: Input the correct cluster name (amazon or hpc)."
 	fi
