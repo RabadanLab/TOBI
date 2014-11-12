@@ -13,6 +13,7 @@
 if [[ -e /opt/TOBI/gbm_pipeline/tobi_config_amazon.sh ]]
 then
 	# on Amazon
+	amazon=1
 	config=/opt/TOBI/gbm_pipeline/tobi_config_amazon.sh
 else
 	# on HPC
@@ -51,9 +52,17 @@ do
 	mkdir -p ${main_outputdir}/${case_name}/output_folder
 	
 	# This qsubs all chromosome parts. Change the numbers after -t, if needed
-	qsub -t 30-30 -V -e ${main_outputdir}/${case_name}/logs -o ${main_outputdir}/${case_name}/logs \
-		-N A-${short_case_name} -cwd -l mem=${mem},time=${tim}:: \
-		${script} --bam ${BAM_file} --annot_filt ${Annotation_Filtering} --patient ${case_name} --ref ${ref} \
-		--steps ${flag} --outputdir ${main_outputdir}/${case_name}/output_folder --memory ${java_mem} \
-		--config_file ${config}
+	if [[ ${amazon} == 0 ]] 
+	then
+		qsub -t 30-30 -V -e ${main_outputdir}/${case_name}/logs -o ${main_outputdir}/${case_name}/logs \
+			-N A-${short_case_name} -cwd -l mem=${mem},time=${tim}:: \
+			${script} --bam ${BAM_file} --annot_filt ${Annotation_Filtering} --patient ${case_name} --ref ${ref} \
+			--steps ${flag} --outputdir ${main_outputdir}/${case_name}/output_folder --memory ${java_mem} \
+			--config_file ${config}
+	else
+		qsub -t 30-30 -V -e ${main_outputdir}/${case_name}/logs -o ${main_outputdir}/${case_name}/logs \
+			-N A-${short_case_name} -cwd \
+			${script} --bam ${BAM_file} --annot_filt ${Annotation_Filtering} --patient ${case_name} --ref ${ref} \
+			--steps ${flag} --outputdir ${main_outputdir}/${case_name}/output_folder --memory ${java_mem} \
+			--config_file ${config}
 done

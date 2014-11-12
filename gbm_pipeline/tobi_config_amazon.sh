@@ -8,13 +8,13 @@ sw=/opt/sw
 
 ### batch_multi_array variable
 bamdir=/scratch/Bam_files
-main_outputdir=/scratch/Results/GBM
+main_outputdir=/Results/GBM
 list_file=/scratch/Bam_files/running.txt
 script=${sw}/TOBI/gbm_pipeline/run_pipeline.sh
 
 ### paths needed for annotation and filtering
 Annotation_Filtering=${sw}/TOBI/gbm_pipeline/do_annotation_filtering.sh
-BcfTools=/usr/bin/bcftools
+BcfTools=/usr/local/bin/bcftools
 java7=/usr/bin/java
 SNPEFF_HOME=${sw}/snpEff-v3.6
 SNPEFF="-jar $SNPEFF_HOME/snpEff.jar -c $SNPEFF_HOME/snpEff.config"

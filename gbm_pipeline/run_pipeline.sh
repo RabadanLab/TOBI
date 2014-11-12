@@ -81,10 +81,11 @@ do
 		shift
 	elif [  "$1" == "-debug" -o "$1" == "--debug" ]; then
 		shift; 
-		debug=1; 
+		debug=1;
+		shift 
 	elif [  "$1" == "-index" -o "$1" == "--index" ]; then
 		shift; 
-#		SGE_TASK_ID=$1; 
+		SGE_TASK_ID=$1; 
 		shift
 	elif [  "$1" == "--config_file" ]; then
 		shift; 
