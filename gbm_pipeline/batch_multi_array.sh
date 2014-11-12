@@ -10,14 +10,15 @@
 # To read all the variables needed
 # Make sure to modify the config file accordingly
 
-if [[ -e /opt/TOBI/gbm_pipeline/tobi_config_amazon.sh ]]
+config=/Results/TOBI/gbm_pipeline/tobi_config_amazon.sh
+
+if [[ -f ${config} ]]
 then
-	# on Amazon
-	amazon=1
-	config=/opt/TOBI/gbm_pipeline/tobi_config_amazon.sh
+        # on Amazon
+        amazon=1
 else
-	# on HPC
-	config=/ifs/home/c2b2/rr_lab/ar3177/bin/aws/gbm_pipeline/tobi_config_hpc.sh
+        # on HPC
+        config=/ifs/home/c2b2/rr_lab/ar3177/bin/aws/gbm_pipeline/tobi_config_hpc.sh
 fi
 
 source ${config}
@@ -65,4 +66,5 @@ do
 			${script} --bam ${BAM_file} --annot_filt ${Annotation_Filtering} --patient ${case_name} --ref ${ref} \
 			--steps ${flag} --outputdir ${main_outputdir}/${case_name}/output_folder --memory ${java_mem} \
 			--config_file ${config}
+	fi
 done

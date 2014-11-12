@@ -20,9 +20,9 @@ TOBI: Tumor Only Boosting Identification of Driver Mutations
 
 Input: WXS bam files in `list_file`.
 
-On Amazon, go to /opt/sw and:
+On Amazon, go to a volume (e.g. /Results) and:
 
-	git clone https://github.com/alireza202/TOBI.git
+	git clone https://github.com/alireza202/TOBI.git TOBI
 
 
 
