@@ -14,10 +14,10 @@ helpmessage=$( cat <<EOF
 Usage example:
 
 For hpc:
-	$0 --config /ifs/home/c2b2/rr_lab/ar3177/bin/TOBI/gbm_pipeline/tobi_config_hpc.sh --steps B --bam all -s 1 -e 73 --cluster hpc
+	$0 --config /ifs/home/c2b2/rr_lab/ar3177/bin/TOBI/varCall_filtering/tobi_config_hpc.sh --steps B --bam all -s 1 -e 73 --cluster hpc --filter on
 
 For amazon:
-	$0 --config /Results/TOBI/gbm_pipeline/tobi_config_amazon.sh --steps B -bam 1 -s 30 -e 30 --cluster amazon
+	$0 --config /Results/TOBI/varCall_filtering/tobi_config_amazon.sh --steps B -bam 1 -s 30 -e 30 --cluster amazon --filter on
 
 Required Arguments:
 

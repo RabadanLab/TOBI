@@ -11,19 +11,19 @@ tobi=/Results/TOBI
 bamdir=/scratch/Bam_files
 main_outputdir=/Results/GBM
 list_file=/scratch/Bam_files/running.txt
-script=${tobi}/gbm_pipeline/run_pipeline.sh
+script=${tobi}/varCall_filtering/run_pipeline.sh
 
 ### paths needed for annotation and filtering
-Annotation_Filtering=${tobi}/gbm_pipeline/do_annotation_filtering.sh
+Annotation_Filtering=${tobi}/varCall_filtering/do_annotation_filtering.sh
 BcfTools=/usr/local/bin/bcftools
 java7=/usr/bin/java
 SNPEFF_HOME=${sw}/snpEff-v3.6
 SNPEFF="-jar $SNPEFF_HOME/snpEff.jar -c $SNPEFF_HOME/snpEff.config"
 SNPSIFT="-jar $SNPEFF_HOME/SnpSift.jar"
-vcfEffOnePerLine=${tobi}/gbm_pipeline/scripts/vcfEffOnePerLine.pl
-PythonParsing=${tobi}/gbm_pipeline/scripts/parse_tsv.py
-vcf2report=${tobi}/gbm_pipeline/scripts/vcf2report.py
-filter_indel_techn_biol=${tobi}/gbm_pipeline/scripts/filter_indel_techn_biol.R
+vcfEffOnePerLine=${tobi}/varCall_filtering/scripts/vcfEffOnePerLine.pl
+PythonParsing=${tobi}/varCall_filtering/scripts/parse_tsv.py
+vcf2report=${tobi}/varCall_filtering/scripts/vcf2report.py
+filter_indel_techn_biol=${tobi}/varCall_filtering/scripts/filter_indel_techn_biol.R
 
 ### references
 ref=${rf}/homo_sapiens_assembly19/Homo_sapiens_assembly19.fasta
