@@ -1,4 +1,4 @@
-ML = function(training, testing, my_formula, my_metric = "Fscore", max_min = TRUE, do_table = TRUE, do_plot = FALSE) {
+ML = function(training, testing, modelInfo, my_formula, my_metric = "Fscore", max_min = TRUE, do_table = TRUE, do_plot = FALSE) {
   # this function runs the machine learning
   # training can be a list. if not, it will be converted to one
   # training should be a dataframe

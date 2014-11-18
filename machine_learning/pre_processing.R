@@ -4,10 +4,14 @@ library(doMC)
 registerDoMC(cores = 4)
 
 ##########################################################################
+# file pathes
+input_file = "/Volumes/ifs/scratch/Results/GBM/final_tables/all_GBM_mutations_Oct-3-2014_filt_with_indel_techn_biol.txt"
+output_file = "/Volumes/ifs/scratch/Results/GBM/final_tables/all_GBM_mutations_104cases_filt_indel_techn_biol_pfam_pre_proc.txt"
+TOBI_path = "/Volumes/ifs/bin/TOBI"
+
+##########################################################################
 # Sourcing the functions
-loc = "/Volumes/ifs"
-# loc = "/Volumes/ar3177"
-file_path = paste(loc, "/bin/TOBI/machine_learning/pp_scripts", sep = "")
+file_path = paste(TOBI_path, "/machine_learning/pp_scripts", sep = "")
 file.sources = list.files(path = file_path,
                           pattern="*.R",
                           full.names = TRUE)
@@ -16,18 +20,13 @@ rm(file.sources, item, file_path)
 
 ##########################################################################
 # Reading mutations
-file_name = "all_GBM_mutations_Oct-3-2014_filt_with_indel_techn_biol.txt"
-# file_name = "all_GBM_mutations_104cases_filt_indel_techn_biol_pre_proc.txt"
-mt_file = paste(loc, 
-                "/scratch/Results/GBM/final_tables/", 
-                file_name,
-                sep = "")
-mt = my_read_table(mt_file)
+# input_file = "all_GBM_mutations_104cases_filt_indel_techn_biol_pre_proc.txt"
+mt = my_read_table(input_file)
 
 ################################################################################
 # Adding somatic annotation
-somatic_file = paste(loc, 
-                     "/scratch/Results/GBM/Somatic_Mutations/CBio/cbio_somatic_mutations_XY.txt", 
+somatic_file = paste(TOBI_path, 
+                     "/machine_learning/pp_data/cbio_somatic_mutations_XY.txt", 
                      sep = "")
 somatic = my_read_table(somatic_file)
 a = somatic_annot(mt, somatic)
@@ -40,12 +39,13 @@ table(somatic$Not_Present)
 
 ################################################################################
 # addin gene_freq to the data
-gene_freq_file = paste(loc, 
-                       "/scratch/meganormal/gene_count_acl_length_merged.txt", 
+gene_freq_file = paste(TOBI_path, 
+                       "/machine_learning/pp_data/gene_count_acl_length_merged.txt", 
                        sep = "")
 gene_freq_length = my_read_table(gene_freq_file)
 
 mt = gene_freq_fun(mt, gene_freq_length)
+head(mt$gene_freq)
 
 ################################################################################
 # optional
@@ -64,18 +64,19 @@ if (check_missed) {
                           & somatic$gene_symbol %in% missed_driver_genes, ]
   missed_driver = missed_driver[, c("gene_symbol", "case_id", "chr", "start_position")]
   
-  output_file = paste(loc, "/scratch/Results/Finding_lost_mutations/missed_driver_mutations_lib.txt", sep = "")
+  output_file = paste(TOBI_path, "/scratch/Results/Finding_lost_mutations/missed_driver_mutations_lib.txt", sep = "")
   my_write_table(missed_driver, output_file)
 }
 
 
 ################################################################################
 # adding total number of cosmic sample to the data
-tot_cosm_file = paste(loc, 
-                      "/scratch/cosmic/tot_num_samples_gene.txt", 
+tot_cosm_file = paste(TOBI_path, 
+                      "/machine_learning/pp_data/tot_num_samples_gene.txt", 
                       sep = "")
 tot_cosm_samp = my_read_table(tot_cosm_file)
 mt = tot_cosm_fun(mt, tot_cosm_samp)
+head(mt$tot_cosm_samp)
 
 ################################################################################
 # Calculating mutation allele frequency
@@ -97,13 +98,12 @@ Sys.time() - time1
 # Removing empty columns
 mt = removing_features(mt)
 
-
 ################################################################################
 # Add mega, and filter indels
 INDEL = FALSE
 if (INDEL) {
-  mega_file = paste(loc,
-                    "/scratch/meganormal/219normals_chr_intervals.txt",
+  mega_file = paste(TOBI_path,
+                    "/machine_learning/pp_data/219normals_chr_intervals.txt",
                     sep = "")
   mega = my_read_table(mega_file)
   mt = indel_filter(mt, mega)
@@ -114,7 +114,17 @@ if (INDEL) {
 table(mt$indel)
 
 ################################################################################
+# Add domain-specific cosmic mutations
+pfam = FALSE
+if (pfam) {
+  pfam_cosmic_file = paste(TOBI_path, 
+                           "/machine_learning/pp_data/pfam_cosmic.txt", 
+                           sep = "")
+  pfam_cosmic = my_read_table(pfam_cosmic_file)
+  mt = pfam_cosmic_fun(mt, pfam_cosmic)
+}
+
+################################################################################
 # Writing the output
-output_file = paste(loc, "/scratch/Results/GBM/final_tables/all_GBM_mutations_104cases_filt_with_indel_techn_biol_pre_proc.txt", sep = "")
 my_write_table(mt, output_file)
 

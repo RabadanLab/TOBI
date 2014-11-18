@@ -15,7 +15,8 @@ removing_features = function(y) {
             "yp", "mut", "nmd", "nmutperid", "noc", "nov", "nsf", "nsn", 
             "om", "oth", "pc2", "pchi2", "pl_1", "pmc", "pr", "qbd", 
             "qchi2", "r3", "rpq", "rs", "rspos", "ssr", "strand", "tpa", 
-            "transcript_id", "u3", "u5", "ugt", "vp", "wtd")
+            "transcript_id", "u3", "u5", "ugt", "vp", "wtd", "X", "X.1")
+  
   y = y[,!(colnames(y) %in% drops)]
    
   y = y[, -grep("*rankscore*", colnames(y))]

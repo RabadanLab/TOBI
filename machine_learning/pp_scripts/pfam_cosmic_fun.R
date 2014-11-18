@@ -8,7 +8,7 @@ pfam_cosmic_fun = function(y, pfam_cosmic) {
     ind = (pfam_cosmic$chromStart[ pfam_cosmic$chrom == y$chrom[i]] <= y$pos[i]) &
       (pfam_cosmic$chromEnd[ pfam_cosmic$chrom == y$chrom[i]] >= y$pos[i])
     if (any(ind)) {
-      max(pfam_cosmic$all_cosmic[ind])
+      max(pfam_cosmic$pval[ind])
     } else {
       0
     }

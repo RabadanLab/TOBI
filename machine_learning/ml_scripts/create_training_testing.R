@@ -1,4 +1,5 @@
-create_training_testing = function(file_path, p, dbSNP_only = TRUE, indel = FALSE) {
+create_training_testing = function(file_path, p, param, 
+                                   dbSNP_only = TRUE, indel = FALSE) {
   cat("- Reading file\n")
   y = read.table(file_path, 
                   sep = "\t", 
@@ -20,7 +21,7 @@ create_training_testing = function(file_path, p, dbSNP_only = TRUE, indel = FALS
   training = y[ y$case %in% training_list, ]
   training$num_mut_gene = num_mut_gene(training)
   training$case_mut_gene = case_mut_gene(training)
-  training = cleaning(training, indel)
+  training = cleaning(training, param, indel)
   
   if (! no_testing) {
     cat("- Testing\n")
@@ -28,7 +29,7 @@ create_training_testing = function(file_path, p, dbSNP_only = TRUE, indel = FALS
     testing = y[ y$case %in% testing_list, ]
     testing$num_mut_gene = num_mut_gene(testing)
     testing$case_mut_gene = case_mut_gene(testing)
-    testing = cleaning(testing, indel)
+    testing = cleaning(testing, param, indel)
     
     y = list(training, testing)
   } else {

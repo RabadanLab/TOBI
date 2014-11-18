@@ -20,7 +20,16 @@ modelInfo = custom_gbm()
 # Reading in the data and dividing it to training and testing
 file_path = paste(loc, "/scratch/Results/GBM/final_tables/all_GBM_mutations_104cases_filt_with_indel_techn_biol_pre_proc.txt", sep = "")
 p = 20 # number of training cases
-a = create_training_testing(file_path, p, dbSNP_only = TRUE, indel = FALSE)
+param = c("Y", "case", "chrom", "pos", "id", "ref", "alt", "gene_name", "dp", "effect",
+          "amino_acid_change", "warnings", "id2", "qual", "freq", "amino_acid_length",
+          "gene_freq", "gene_length", "tot_cosm_samp", "num_mut_gene", "case_mut_gene",
+          "mq", "effect_impact", "cosmic_nsamp", "pval_som", "dbNSFP_1000Gp1",
+          "dbNSFP_CADD_phred", "dbNSFP_MutationAssessor_score",
+          "dbNSFP_MutationTaster_score", "dbNSFP_FATHMM_score",
+          "dbNSFP_Polyphen2_HDIV_score", "dbNSFP_Polyphen2_HVAR_score",
+          "dbNSFP_RadialSVM_score", "dbNSFP_SIFT_score")
+a = create_training_testing(file_path, p, param, 
+                            dbSNP_only = TRUE, indel = FALSE)
 training = a[[1]]
 testing = a[[2]]
 rm(a, p)
@@ -33,8 +42,11 @@ my_formula = Y ~ freq + id2 + gene_freq + amino_acid_length +
   dbNSFP_MutationTaster_score + dbNSFP_Polyphen2_HDIV_score + dbNSFP_SIFT_score
 
 # Boosting using Caret
+time1 = Sys.time()
 modboost = list()
-modboost[[1]] = ML(training, testing, my_formula,
+modboost[[1]] = ML(training, testing, 
+                   modelInfo,
+                   my_formula,
                    # optimization measure
                    "Fscore", 
                    # maximize
@@ -43,7 +55,7 @@ modboost[[1]] = ML(training, testing, my_formula,
                    TRUE, 
                    #plot
                    FALSE)
-
+Sys.time() - time1
 ##################################################################################################################
 # check the driver mutations
 somatic_path = paste(loc, "/scratch/Results/GBM/Somatic_Mutations/CBio/cbio_somatic_SNPs_XY.txt", 

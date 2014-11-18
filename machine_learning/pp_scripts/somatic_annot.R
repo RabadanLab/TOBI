@@ -8,8 +8,9 @@ somatic_annot = function(y, somatic) {
   # Choose the corresponding cases from somatic
   somatic = subset(somatic, somatic$case_id %in% y_list)
   
-  somatic$ID = paste(somatic$case_id, somatic$chr, somatic$start_position, sep = ":")
-  y$ID = paste(y$case, y$chrom, y$pos, sep = ":")
+  somatic$ID = paste(somatic$case_id, somatic$chr, 
+                     somatic$start_position, somatic$variant_allele, sep = ":")
+  y$ID = paste(y$case, y$chrom, y$pos, y$alt, sep = ":")
   
   # Finding the somatic mutations using CBio data
   somatic$Not_Present = 1

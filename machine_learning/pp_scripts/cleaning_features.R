@@ -5,8 +5,11 @@ cleaning_features = function(y) {
     y$effect_impact[y$effect_impact == "MODIFIER"] = 3
     y$effect_impact[y$effect_impact == "HIGH"] = 4
     
-    y$gt_1[y$gt_1 == '0/1'] = 0
-    y$gt_1[y$gt_1 == '1/1'] = 1
+    if ("gt_1" %in% colnames(y)) {
+      y$gt_1[y$gt_1 == '0/1'] = 0
+      y$gt_1[y$gt_1 == '1/1'] = 1
+    }
+    
     
     y$sao[y$sao == "."] = "NA"
     y$sao[y$sao == "0"] = "Unspecified"
