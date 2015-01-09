@@ -1,5 +1,6 @@
 myPerf = function(data, lev = NULL, model = NULL) {
   # this functuon is used in trainControl to give different measures for optimization
+  # data has two columns: "pred" and "obs"
   TP = sum(data[, "pred"] == "som" & data[, "obs"] == "som")
   TN = sum(data[, "pred"] == "non_som" & data[, "obs"] == "non_som")
   FP = sum(data[, "pred"] == "som" & data[, "obs"] == "non_som")

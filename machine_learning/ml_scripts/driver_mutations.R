@@ -6,8 +6,7 @@ driver_mutations = function(mydata, modboost, somatic_path, output_plot = TRUE) 
   require(ggplot2)
   require(reshape2)
   
-  mydata$pred = unlist(predict(modboost[[1]], mydata[,-c(1:11)]))
-#   mydata$pred = predict(modboost, mydata[,-c(1:11)])
+  mydata$pred = predict(modboost, mydata[,-c(1:11)])
   
   GBM_Recur_Mutations = c("PIK3R1", "PTEN", "PIK3CA", "TP53", "EGFR", "IDH1", 
                           "BRAF", "RB1", "NF1", "PDGFRA", "LRP2", "PPP2R3A", 
@@ -55,20 +54,29 @@ driver_mutations = function(mydata, modboost, somatic_path, output_plot = TRUE) 
   cat("After filter:", sum(imp_mt$num_mut_filt), "\n")
   cat("After ML:", sum(imp_mt$TP), "\n")
   
+  
+  gg_color_hue <- function(n) {
+    hues = seq(15, 375, length=n+1)
+    hcl(h=hues, l=65, c=100)[1:n]
+  }
+  
   if (output_plot) {
     imp_mt_melt = melt(imp_mt, id = c("gene"))
-    q = qplot(x = gene, y = value, fill=variable,
-              data = imp_mt_melt, geom="bar", stat="identity",
-              position="dodge")
-    q = q + 
-      theme_bw() + 
-      coord_fixed(ratio = 0.6) +
-      theme(axis.text.x = element_text(angle = 45, hjust = 1), 
-                               text = element_text(size = 18),
-                               legend.title = element_blank(),
-                               axis.title.x = element_blank(),
-                               axis.title.y = element_blank(),
-                               legend.position="bottom")
+    
+    q = ggplot(imp_mt_melt, aes(gene, value, fill = variable)) +
+      geom_bar(stat = "identity", position = "dodge") +
+      scale_fill_manual(values = gg_color_hue(5),
+                         labels = c("Before filter", "After filter", "TP", "FP", "FN")) +
+      xlab("") +
+      ylab("# Mutations") +
+      theme_bw(base_size = 14) +
+      theme(legend.position=c(0.5, 0.95), 
+            legend.title=element_blank(), 
+            legend.direction = "horizontal") +
+      theme(axis.text.x = element_text(angle = 45, hjust = 1),
+            axis.title.x = element_blank()) +
+      guides(fill = guide_legend(keywidth = 0.5, keyheight = 0.5))
+    
     print(q)
   }
 }

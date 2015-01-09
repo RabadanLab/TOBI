@@ -107,9 +107,9 @@ tim=1
 # Number of cases
 num_bam=$(cat ${list_file} | wc -l)
 
-if [[ bam == all ]]
+if [[ $bam == all ]]
 then
-	bam="seq 1 1 ${num_bam}"
+	bam=`seq 1 1 ${num_bam}`
 fi
 
 for j in ${bam} 
@@ -117,7 +117,7 @@ do
 	# Get the j th bam file
 	# Adapt this part accordingly for your bam file and case names
 	case_name=$(cat ${list_file} | sed -n ${j}p)
-	short_case_name=$(echo ${case_name} | awk -F'-' '{print $2 $3}')
+	short_case_name=$(echo ${case_name}')
 	BAM_file=${bamdir}/${case_name}/*/*.bam
 	
 	mkdir -p ${main_outputdir}/${case_name}

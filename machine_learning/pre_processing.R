@@ -6,7 +6,7 @@ registerDoMC(cores = 4)
 ##########################################################################
 # file pathes
 input_file = "/Volumes/ifs/scratch/Results/GBM/final_tables/all_GBM_mutations_Oct-3-2014_filt_with_indel_techn_biol.txt"
-output_file = "/Volumes/ifs/scratch/Results/GBM/final_tables/all_GBM_mutations_104cases_filt_indel_techn_biol_pfam_pre_proc.txt"
+output_file = "/Volumes/ifs/scratch/Results/GBM/final_tables/all_GBM_mutations_104cases_filt_indel_techn_biol_pre_proc.txt"
 TOBI_path = "/Volumes/ifs/bin/TOBI"
 
 ##########################################################################
@@ -97,6 +97,12 @@ Sys.time() - time1
 
 # Removing empty columns
 mt = removing_features(mt)
+
+# Removing freq lower than 1
+mt = mt[ mt$freq > 1, ]
+
+# Removing mq lower than 40
+mt = mt[ mt$mq >= 40, ]
 
 ################################################################################
 # Add mega, and filter indels

@@ -1,4 +1,4 @@
-check_normal = function(file_path, modboost) {
+check_normal = function(file_path, modboost, param) {
   # file_path is the normal data after pre-processing
   cat("- Reading in the normal data\n")
   mt = read.table(file_path, 
@@ -14,7 +14,7 @@ check_normal = function(file_path, modboost) {
   mt$case_mut_gene = case_mut_gene(mt)
   
   cat("- Cleaning the data\n")
-  mt = cleaning(mt)
+  mt = cleaning(mt, param)
   
   cat("- Confusion table\n")
   print(table(predict(modboost, mt[,-c(1:11)]), mt[,1], dnn=list('predicted','actual')))

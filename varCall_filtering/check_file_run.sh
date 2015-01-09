@@ -6,7 +6,7 @@ outputdir=/ifs/scratch/c2b2/rr_lab/ar3177/Results/GBM/Done
 list_files=running.txt
 
 # Number of cases
-num_bam=$(cat ${bamdir}/${list_files} | wc | awk '{print $1}')
+num_bam=$(cat ${bamdir}/${list_files} | wc -l)
 
 for j in $(seq 1 1 ${num_bam}) 
 #for j in 1

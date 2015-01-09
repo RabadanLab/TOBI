@@ -1,5 +1,5 @@
 case_mut_gene = function(x) {
-  # this function calculates the total number of mutation in a gene for every case, 
+  # this function calculates the total number of mutations in a gene for every case, 
   # and adds it to the mutation as a feature
   # x is the dataframe
   # output is a vector

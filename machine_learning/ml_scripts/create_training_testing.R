@@ -21,6 +21,7 @@ create_training_testing = function(file_path, p, param,
   training = y[ y$case %in% training_list, ]
   training$num_mut_gene = num_mut_gene(training)
   training$case_mut_gene = case_mut_gene(training)
+  training$recur = recurrent(training)
   training = cleaning(training, param, indel)
   
   if (! no_testing) {
@@ -29,6 +30,7 @@ create_training_testing = function(file_path, p, param,
     testing = y[ y$case %in% testing_list, ]
     testing$num_mut_gene = num_mut_gene(testing)
     testing$case_mut_gene = case_mut_gene(testing)
+    testing$recur = recurrent(testing)
     testing = cleaning(testing, param, indel)
     
     y = list(training, testing)
