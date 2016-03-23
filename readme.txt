@@ -22,12 +22,8 @@ TOBI: Tumor Only Boosting Identification of Driver Mutations
 
 Input: vcf files as described in "list file" from step0; maf file to generate "list file" #WXS bam files in `list_file`.
 
-On Amazon, go to a volume (e.g. /Results) and:
-
-	git clone https://github.com/alireza202/TOBI.git TOBI
-
 Ver. 1.2: Mar 22, 2016
-cjmadubata modified from Alireza Roshan Ghias's code (Ver. 1.1: Nov 07, 2014)
+cjmadubata modified from Alireza Roshan Ghias's code (Ver. 1.1: Nov 07, 2014 https://github.com/alireza202/TOBI.git TOBI)
 
 ########################################################################################
 ###varCall_filtering###

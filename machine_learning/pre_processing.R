@@ -13,6 +13,7 @@ somatic_file <- args[[3]]
 TOBI_path <- args[[4]]
 print(args)
 
+time1 = Sys.time()
 ##########################################################################
 # Sourcing the functions
 file_path = paste(TOBI_path, "/machine_learning/pp_scripts", sep = "")
@@ -133,4 +134,4 @@ if (pfam) {
 ################################################################################
 # Writing the output
 my_write_table(mt, output_file)
-
+print(Sys.time() - time1)
