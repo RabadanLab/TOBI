@@ -60,6 +60,10 @@ below:
 
 	varCall_filtering/merge_all_tsvs.sh {list_file} {main_outputdir_from_config} {/path/to/output/table} {label_for_this_TOBI_run} 	
 
+Step 7a. If using COSMIC after v66, need to replace "cnt" column with "cosmic_nsamp" for next TOBI steps
+	sed -i '1s/cnt/cosmic_nsamp/' {/path/to/output/table}
+
+### machine_learning ###
 Step 8. Pre-processing using R. Needs customization each time.
 
 	machine_learning/pre_processing.R
