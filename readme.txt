@@ -30,7 +30,7 @@ Ver. 1.2: Mar 22, 2016
 cjmadubata modified from Alireza Roshan Ghias's code (Ver. 1.1: Nov 07, 2014)
 
 ########################################################################################
-
+###varCall_filtering###
 Step0. Run: varCall_filtering/maf_to_tobi_som_var_list.sh {path_to_maf} {output_true_somatic} 
 	to generate list of  true somatic varints {output_true_somatic} 
 	and list of case names patient.{output_true_somatic} (aka list_file)
@@ -47,14 +47,13 @@ Step 2. Check the batch run file
 
 Step 5. Run all samples using -AF flags:
 	varCall_filtering/batch_multi_array.LGG_TCGA.sh_suffix --config /path/to/config_file 
-	--steps AF --bam all -s 0 -e 0 --cluster hpc --filter on --
+	--steps AF --bam all -s 0 -e 0 --cluster hpc --filter on --vcfsuf oxoG.snp.capture.tcga.vcf
 	# --bam -s -e flags are not used for VCF analysis
 
-Step 6. Check the final file sizes, before and after filtering, using the script below:
-
-	check_final_run.sh
+Step 6. Check number of lines in final file sizes, using the script below:
+	varCall_filtering/tobi_out_empty.sh {main_outputdir_from_config} list_file	
 	
-If some cases where not done, find the problem, and run them again.
+If some cases did not run, find the problem, and run them again.
 
 Step 7. Merge all final files for each case, and then all together using the script 
 below:
