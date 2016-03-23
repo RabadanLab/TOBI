@@ -21,7 +21,7 @@ print(args)
 
 ################################################################################
 # Sourcing the functions
-#file_path = "/Volumes/cjm2200/20150727_TOBI_revision/scripts/na_minus1/" #contains new na_minus1.R script that does mean
+#contains new na_minus1.R script that does mean and na_to_0 for converting non-numeric columns into 0
 file_path = paste(TOBI_path, "/machine_learning/na_minus1/", sep = "")
 file.sources = list.files(path = file_path,
                           pattern="*.R",
@@ -30,8 +30,6 @@ for (item in file.sources) source(item)
 rm(file.sources, item, file_path)
 modelInfo = custom_gbm()
 
-#source("/Volumes/cjm2200/TOBI/machine_learning/ml_scripts/myPerf.y_col_name_not_obs.R")
-#source("/Volumes/cjm2200/20150727_TOBI_revision/scripts/top_pred.all_genes.ROC_function.R")  #top pred genes
 ################################################################################
 # Reading in the data and dividing it to training and testing
 file_path = input_file
@@ -84,7 +82,7 @@ for (i in 1:4){
                 TRUE, 
                 #plot cross-validation curves
                 TRUE)
-  Sys.time() - time1
+  print(Sys.time() - time1)
 
   #testing data: prediction, performance stat, calculate top_pred_genes, save predictions
   testing$pred <- predict(modboost, testing[,-c(1:11)])
