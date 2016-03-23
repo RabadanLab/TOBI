@@ -35,7 +35,7 @@ Step0. Run: varCall_filtering/maf_to_tobi_som_var_list.sh {path_to_maf} {output_
 	to generate list of  true somatic varints {output_true_somatic} 
 	and list of case names patient.{output_true_somatic} (aka list_file)
 
-Step1. Update tobi_config file for your samples 
+Step1. Update tobi_config file for your samples, particularly location of list_file
 
 VCF files are assumed to be in same folder with different sample names at beginning of file
 followed by a common suffix
@@ -51,14 +51,14 @@ Step 5. Run all samples using -AF flags:
 	# --bam -s -e flags are not used for VCF analysis
 
 Step 6. Check number of lines in final file sizes, using the script below:
-	varCall_filtering/tobi_out_empty.sh {main_outputdir_from_config} list_file	
+	varCall_filtering/tobi_out_empty.sh {main_outputdir_from_config} {list_file}	
 	
 If some cases did not run, find the problem, and run them again.
 
 Step 7. Merge all final files for each case, and then all together using the script 
 below:
 
-	merge_all_tsvs.sh
+	varCall_filtering/merge_all_tsvs.sh {list_file} {main_outputdir_from_config} {/path/to/output/table} {label_for_this_TOBI_run} 	
 
 Step 8. Pre-processing using R. Needs customization each time.
 
