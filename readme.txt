@@ -20,19 +20,20 @@ TTTTTT  T:::::T  TTTTTT     O::::::O   O::::::O       B::::B     B:::::B       I
 
 TOBI: Tumor Only Boosting Identification of Driver Mutations
 
-Input: WXS bam files in `list_file`.
+Input: vcf files as described in "list file" from step0; maf file to generate "list file" #WXS bam files in `list_file`.
 
 On Amazon, go to a volume (e.g. /Results) and:
 
 	git clone https://github.com/alireza202/TOBI.git TOBI
 
-
-
-Alireza Roshan Ghias
-Ver. 1.1: Nov 07, 2014
+Ver. 1.2: Mar 22, 2016
+cjmadubata modified from Alireza Roshan Ghias's code (Ver. 1.1: Nov 07, 2014)
 
 ########################################################################################
 
+Step0. Run: varCall_filtering/maf_to_tobi_som_var_list.sh {path_to_maf} {output_true_somatic} 
+	to generate list of  true somatic varints {output_true_somatic} 
+	and list of case names {output_true_somatic} (aka list_file)
 Step1. Update tobi_config file for your problem.
 
 Bam files are assumed to be in separate folders with the main folder named after the 
