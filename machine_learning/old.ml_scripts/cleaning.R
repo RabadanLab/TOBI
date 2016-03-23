@@ -31,15 +31,10 @@ cleaning = function(x, param, indel = FALSE) {
   
   if (indel) {
     columns = c(columns, "indel", "is_1", "is_2")
-    for (column in columns) y[, column] = na_to_0(y[, column])
+    for (column in columns) y[, column] = na_minus1(y[, column])
   } else {
-    for (column in columns) y[, column] = na_to_0(y[, column])
+    for (column in columns) y[, column] = na_minus1(y[, column])
   }
-
-  dbNSFP = c("dbNSFP_CADD_phred", "dbNSFP_RadialSVM_score", 
-               "dbNSFP_MutationAssessor_score", "dbNSFP_MutationTaster_score", 
-               "dbNSFP_Polyphen2_HDIV_score", "dbNSFP_Polyphen2_HVAR_score", 
-               "dbNSFP_SIFT_score", "dbNSFP_FATHMM_score")
-  for (column in dbNSFP) y[, column] = na_to_mean(y[, column]) 
+  
   y
 }

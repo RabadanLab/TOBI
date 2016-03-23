@@ -22,7 +22,7 @@ print(args)
 ################################################################################
 # Sourcing the functions
 #contains new na_minus1.R script that does mean and na_to_0 for converting non-numeric columns into 0
-file_path = paste(TOBI_path, "/machine_learning/na_minus1/", sep = "")
+file_path = paste(TOBI_path, "/machine_learning/ml_scripts/", sep = "")
 file.sources = list.files(path = file_path,
                           pattern="*.R",
                           full.names = TRUE)
