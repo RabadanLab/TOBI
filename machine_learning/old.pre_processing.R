@@ -1,17 +1,13 @@
-#!/usr/bin/env Rscript
-# runs pre-processing, by labelling variants as truly somatic or no
 rm(list = ls())
 
 library(doMC)
-registerDoMC(12) #change to 4 if running on desktop 
+registerDoMC(cores = 4)
 
 ##########################################################################
-args <- commandArgs(TRUE)
-input_file <- args[[1]]
-output_file <- args[[2]]
-somatic_file <- args[[3]]
-TOBI_path <- args[[4]]
-print(args)
+# file pathes
+input_file = "/Volumes/ifs/scratch/Results/GBM/final_tables/all_GBM_mutations_Oct-3-2014_filt_with_indel_techn_biol.txt"
+output_file = "/Volumes/ifs/scratch/Results/GBM/final_tables/all_GBM_mutations_104cases_filt_indel_techn_biol_pre_proc.txt"
+TOBI_path = "/Volumes/ifs/bin/TOBI"
 
 ##########################################################################
 # Sourcing the functions
@@ -24,10 +20,14 @@ rm(file.sources, item, file_path)
 
 ##########################################################################
 # Reading mutations
+# input_file = "all_GBM_mutations_104cases_filt_indel_techn_biol_pre_proc.txt"
 mt = my_read_table(input_file)
 
 ################################################################################
 # Adding somatic annotation
+somatic_file = paste(TOBI_path, 
+                     "/machine_learning/pp_data/cbio_somatic_mutations_XY.txt", 
+                     sep = "")
 somatic = my_read_table(somatic_file)
 a = somatic_annot(mt, somatic)
 mt = a[[1]]
@@ -80,12 +80,12 @@ head(mt$tot_cosm_samp)
 
 ################################################################################
 # Calculating mutation allele frequency
-mt$freq = 100 * mt$fa_2 #"Fractions of reads (excluding MQ0 from both ref and alt) supporting each reported alternative allele, per sample"  #(mt$dp4_3 + mt$dp4_4) / 
-    #(mt$dp4_1 + mt$dp4_2 + mt$dp4_3 + mt$dp4_4) * 100
+mt$freq = (mt$dp4_3 + mt$dp4_4) / 
+    (mt$dp4_1 + mt$dp4_2 + mt$dp4_3 + mt$dp4_4) * 100
 
 # calculating the pvalue for being somatic based on dp and freq
-var_dp = round(mt$dp_2*mt$freq/100)
-mt$pval_som = dbinom(var_dp, mt$dp_2, 0.5)
+var_dp = round(mt$dp*mt$freq/100)
+mt$pval_som = dbinom(var_dp, mt$dp, 0.5)
 
 # making id2
 mt$id2 = id2(mt)
@@ -102,7 +102,7 @@ mt = removing_features(mt)
 mt = mt[ mt$freq > 1, ]
 
 # Removing mq lower than 40
-#mt = mt[ mt$mq >= 40, ]  #cjm, field is absent
+mt = mt[ mt$mq >= 40, ]
 
 ################################################################################
 # Add mega, and filter indels
