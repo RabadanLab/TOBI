@@ -33,23 +33,22 @@ cjmadubata modified from Alireza Roshan Ghias's code (Ver. 1.1: Nov 07, 2014)
 
 Step0. Run: varCall_filtering/maf_to_tobi_som_var_list.sh {path_to_maf} {output_true_somatic} 
 	to generate list of  true somatic varints {output_true_somatic} 
-	and list of case names {output_true_somatic} (aka list_file)
-Step1. Update tobi_config file for your problem.
+	and list of case names patient.{output_true_somatic} (aka list_file)
 
-Bam files are assumed to be in separate folders with the main folder named after the 
-case and embedded in another folder, like:
+Step1. Update tobi_config file for your samples 
 
-	TCGA-00-0000/*/*.bam
+VCF files are assumed to be in same folder with different sample names at beginning of file
+followed by a common suffix
+	e.g. path/to/vcf/files/TCGA-XX-XXXX-*suffix
+	each TCGA-XX-XXXX represents one patient and one line in "list_file"
 
-Step 2. Update the list_file.txt file to contain the case names.
+Step 2. Check the batch run file
+	varCall_filtering/batch_multi_array.LGG_TCGA.sh_suffix 
 
-Step 3. Check the batch run file to contain the right information.
-
-Step 4. Run one sample to check things are in the right place. Start with B flag. 
-Run the batch file. Check the vcf file, and if needed, the log file. Continue with A, 
-and F separately.
-
-Step 5. Run all samples.
+Step 5. Run all samples using -AF flags:
+	varCall_filtering/batch_multi_array.LGG_TCGA.sh_suffix --config /path/to/config_file 
+	--steps AF --bam all -s 0 -e 0 --cluster hpc --filter on --
+	# --bam -s -e flags are not used for VCF analysis
 
 Step 6. Check the final file sizes, before and after filtering, using the script below:
 
