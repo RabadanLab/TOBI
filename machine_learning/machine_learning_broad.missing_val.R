@@ -16,11 +16,13 @@ out_dir <- args[[2]] #directory where you want files to be saved
 somatic_path <- args[[3]]
 suffix <- args[[4]] #a label specific to this particular run (e.g. <date>_<disease>)
 train_size <- args[[5]] # number of patients you want in the training set
+TOBI_path <- args[[6]]
 print(args)
 
 ################################################################################
 # Sourcing the functions
-file_path = "/Volumes/cjm2200/20150727_TOBI_revision/scripts/na_minus1/" #contains new na_minus1.R script that does mean
+#file_path = "/Volumes/cjm2200/20150727_TOBI_revision/scripts/na_minus1/" #contains new na_minus1.R script that does mean
+file_path = paste(TOBI_path, "/machine_learning/na_minus1/", sep = "")
 file.sources = list.files(path = file_path,
                           pattern="*.R",
                           full.names = TRUE)
@@ -28,8 +30,8 @@ for (item in file.sources) source(item)
 rm(file.sources, item, file_path)
 modelInfo = custom_gbm()
 
-source("/Volumes/cjm2200/TOBI/machine_learning/ml_scripts/myPerf.y_col_name_not_obs.R")
-source("/Volumes/cjm2200/20150727_TOBI_revision/scripts/top_pred.all_genes.ROC_function.R")  #top pred genes
+#source("/Volumes/cjm2200/TOBI/machine_learning/ml_scripts/myPerf.y_col_name_not_obs.R")
+#source("/Volumes/cjm2200/20150727_TOBI_revision/scripts/top_pred.all_genes.ROC_function.R")  #top pred genes
 ################################################################################
 # Reading in the data and dividing it to training and testing
 file_path = input_file
