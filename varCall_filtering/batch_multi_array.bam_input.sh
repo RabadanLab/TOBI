@@ -116,8 +116,10 @@ for j in ${bam}
 do
 	# Get the j th bam file
 	# Adapt this part accordingly for your bam file and case names
-	case_name=$(cat ${list_file} | sed -n ${j}p)
-
+	case_name=$(cat ${list_file} | sed -n ${j}p | cut -f1)
+	short_case_name=$(echo ${case_name})
+	BAM_file=$(cat ${list_file} | sed -n ${j}p | cut -f3) #${bamdir}/${case_name}.T*.mark.dup.QC.bam.bam
+	
 	mkdir -p ${main_outputdir}/${case_name}
 	mkdir -p ${main_outputdir}/${case_name}/logs
 	mkdir -p ${main_outputdir}/${case_name}/output_folder
@@ -126,17 +128,17 @@ do
 	if [[ ${cluster} == hpc ]] 
 	then
 		qsub -t $s-$e -V -e ${main_outputdir}/${case_name}/logs -o ${main_outputdir}/${case_name}/logs \
-			-N A-${short_case_name} -cwd -l mem=${mem},time=${tim}:: \
+			-N A-${short_case_name} -m as -S /bin/bash -cwd -l mem=${mem},time=${tim}:: \
 			${script} --bam ${BAM_file} --annot_filt ${Annotation_Filtering} --patient ${case_name} --ref ${ref} \
 			--steps ${flag} --outputdir ${main_outputdir}/${case_name}/output_folder --memory ${java_mem} \
 			--config_file ${config} --filter on
-#	elif [[ ${cluster} == amazon ]]
-#	then
-#		qsub -t $s-$e -V -e ${main_outputdir}/${case_name}/logs -o ${main_outputdir}/${case_name}/logs \
-#			-N A-${short_case_name} -cwd \
-#			${script} --bam ${BAM_file} --annot_filt ${Annotation_Filtering} --patient ${case_name} --ref ${ref} \
-#			--steps ${flag} --outputdir ${main_outputdir}/${case_name}/output_folder --memory ${java_mem} \
-#			--config_file ${config} --filter on
+	elif [[ ${cluster} == amazon ]]
+	then
+		qsub -t $s-$e -V -e ${main_outputdir}/${case_name}/logs -o ${main_outputdir}/${case_name}/logs \
+			-N A-${short_case_name} -cwd \
+			${script} --bam ${BAM_file} --annot_filt ${Annotation_Filtering} --patient ${case_name} --ref ${ref} \
+			--steps ${flag} --outputdir ${main_outputdir}/${case_name}/output_folder --memory ${java_mem} \
+			--config_file ${config} --filter on
 	else
 		echo "Error: Input the correct cluster name (amazon or hpc)."
 	fi
