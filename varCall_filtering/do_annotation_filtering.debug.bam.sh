@@ -143,6 +143,8 @@ fi
 #debug option currently not implemented... #cjm
 echo "debug option is " $debug
 if [ $debug -eq 0 ]; then #cjm
+	echo "zipping ${outputdir}/${inputfile}.all.annotations.vcf"
+	gzip ${outputdir}/${inputfile}.all.annotations.vcf
 	echo "removing extra files"
         rm -f ${outputdir}/${inputfile}*eff.vcf #cjm
         rm -f ${outputdir}/${inputfile}*dbSNP.vcf #cjm

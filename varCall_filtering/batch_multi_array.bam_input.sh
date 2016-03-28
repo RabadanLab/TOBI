@@ -116,9 +116,8 @@ for j in ${bam}
 do
 	# Get the j th bam file
 	# Adapt this part accordingly for your bam file and case names
-	case_name=$(cat ${list_file} | sed -n ${j}p | cut -f1)
-	short_case_name=$(echo ${case_name})
-	BAM_file=$(cat ${list_file} | sed -n ${j}p | cut -f3) #${bamdir}/${case_name}.T*.mark.dup.QC.bam.bam
+	BAM_file=$(cat ${list_file} | sed -n ${j}p) 
+	case_name=`echo ${BAM_file} | xargs -I _args basename _args .bam` 
 	
 	mkdir -p ${main_outputdir}/${case_name}
 	mkdir -p ${main_outputdir}/${case_name}/logs
