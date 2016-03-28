@@ -251,8 +251,8 @@ if [ $debug -eq 0 ]; then #cjm
         rm -f ${outputdir}/vcffiles_${SGE_TASK_ID}/raw*indel.tsv #cjm
         rm -f ${outputdir}/vcffiles_${SGE_TASK_ID}/raw*techn.tsv #cjm
         rm -f ${outputdir}/vcffiles_${SGE_TASK_ID}/raw*dbNSFP.vcf #cjm
-        rm -f ${outputdir}/vcffiles_${SGE_TASK_ID}/raw*all.annotations.rep.vcf #cjm first file generated in step F
-	gzip ${outputdir}/vcffiles_${SGE_TASK_ID}/raw*annotations_not_filt.tsv #cjm
+        rm -f ${outputdir}/vcffiles_${SGE_TASK_ID}/raw*all.annotations.rep.vcf #cjm
+#	gzip ${outputdir}/vcffiles_${SGE_TASK_ID}/raw*annotations_not_filt.tsv #cjm
  #cjm
 fi #cjm
 
