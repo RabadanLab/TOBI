@@ -9,10 +9,6 @@ do
 		shift; 
 		ref=$1; 
 		shift
-	elif [  "$1" == "-index" -o "$1" == "--index" ]; then
-		shift; 
-		SGE_TASK_ID=$1; 
-		shift
 	elif [  "$1" == "-bam" -o "$1" == "--bam" ]; then
 		shift; 
 		input_bam=$1; 

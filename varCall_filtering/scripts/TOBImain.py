@@ -1,15 +1,55 @@
 import argparse
 import os
 import subprocess
-import cmd_gen
+import helpers
+import ConfigParser
+import re
 
 def get_arg():
     """Get Arguments"""
 
     prog_description = """TOBIv1.2 ADD DESC HERE"""
     parser = argparse.ArgumentParser(description=prog_description)
-
-
+    
+    #main arguments
+    parser.add_argument(
+        '--inputdir',
+        help = "directory for bam/vcf files"
+        )
+    parser.add_argument(
+        '--output',
+        help = "output directory"
+        )
+    parser.add_argument(
+        '--config',
+        help = """optional config file specifying command line arguments.
+            Arguments specified in the config file will overwrite command
+            line arguments."""                
+        )
+    parser.add_argument(
+        '--steps',
+        type = str,
+        help = """Specify which steps of pipeline to run. (REQUIRED)
+            B: variant calling
+            A: annotate 
+            F: filter
+            eg. --steps AF"""
+        )
+    parser.add_argument(
+        '--cluster',
+        choices = ['hpc','amazon'],
+        help = """Specify which cluster to run on. (REQUIRED)
+            hpc: run on an SGE hpc cluster
+            amazon: run on amazon's clusters (NOT IMPLEMENTED)"""
+        )
+    parser.add_argument(
+        '--debug',
+        default = False,
+        action = 'store_true',
+        help = "Debug flag. NOT IMPLEMENTED"                
+        )
+    
+    #arguments for varcall
     parser.add_argument(
         '--ref',
         help = "Reference genome file. Required for VCF calling"
@@ -27,48 +67,16 @@ def get_arg():
         help = "End index. Default 74"
         )
     
-    parser.add_argument(
-        '--inputdir',
-        help = "directory for vcf files"
-        )
-    parser.add_argument(
-        '--output',
-        help = "output directory"
-        )
+    #arguments for annotate
     parser.add_argument(
         '--plist',
         help = "list of patient IDs"
         )
     parser.add_argument(
-        '--config',
-        help = "optional config file specifying command line arguments."                
-        )
-    parser.add_argument(
-        '--steps ',
-        type = str,
-        help = """Specify which steps of pipeline to run. (REQUIRED)
-            B: NOT IMPLEMENTED
-            A: annotate 
-            F: filter
-            eg. --steps AF"""
-        )
-    parser.add_argument(
-        '--cluster',
-        choices = ['hpc','amazon'],
-        help = """Specify which cluster to run on. (REQUIRED)
-            hpc: run on an SGE hpc cluster
-            amazon: run on amazon's clusters (NOT IMPLEMENTED)"""
-        )
-    parser.add_argument(
         '--vcfsuffix',
         help = "suffix of vcf files that follows TCGA name"
         )
-    parser.add_argument(
-        '--debug',
-        default = False,
-        action = 'store_true',
-        help = "Debug flag. NOT IMPLEMENTED"                
-        )
+    
     software = os.path.dirname(os.path.realpath(__file__))
     parser.add_argument(
         "--scripts",
@@ -86,36 +94,40 @@ def get_arg():
     # add key-value pairs to the args dict
     vars(args)['cwd'] = os.getcwd()
 
-    # print args
-    if args.debug == True:
-        print(args)
-        print
-        
     return args
 
 def main():
     args = get_arg()
+    
+    if args.config:
+        args = helpers.parse_config(args)
+    if args.debug:
+        print(args)
+        
     input_filenames = []
-    #get list of filenames in input directory
+    #get list of .bam filenames in input directory
     for (dirpath, dirnames, filenames) in os.walk(args.inputdir):
-        input_filenames.extend(filenames)
+        for filename in filenames:  
+            if bool(re.search("^.*\.bam$",filename)):
+                input_filenames.append(filename)
         break  
+    
     for case_name in input_filenames:
         #for each case name/bam file, make output directories
         if not os.path.exists(args.output + "/" + case_name):
             os.makedirs(args.output + "/" + case_name)
             os.makedirs(args.output + "/" + case_name + "/logs")
             os.makedirs(args.output + "/" + case_name + "/output_folder") 
-            
+    return
     #vcf calling
     vcf_call(input_filenames,args)
 
     #annotate
-    annotate(input_filenames, args)
+    #annotate(input_filenames, args)
 
 def vcf_call(input_filenames, args):
     for case_name in input_filenames:
-        pileup_cmd = cmd_gen.mpileup(
+        pileup_cmd = helpers.mpileup_cmdgen(
             args.start,
             args.end,
             args.ref,
@@ -135,18 +147,7 @@ def vcf_call(input_filenames, args):
 def annotate(input_filenames, args):
     for case_name in input_filenames:      
         if args.cluster == "hpc":
-            cmd = "qsub -V -N filt-" + case_name \
-                + "-l mem=10G,time=2:: -pe smp 2 " \
-                + "-o " + args.output + "/" + case_name + "/logs " \
-                + "-e " + args.output + "/" + case_name + "/logs " \
-                + "-m as " \
-                + "do_annotation_filtering.sh_TCGA_protected.sh " \
-                + "--input-file " + args.inputdir + "/" + case_name \
-                + " -s " + args.steps \
-                + " --memory 6 --filter on " \
-                + "--config_file " + args.config \
-                + " --debug " + args.debug
-            print(cmd)
+            cmd = helpers.annotate_cmdgen(case_name,args)
             proc = subprocess.Popen(
                 cmd,
                 shell=True,
@@ -155,3 +156,6 @@ def annotate(input_filenames, args):
                 ) 
                 #wait for job completion 
             proc.wait()
+            
+if __name__ == "__main__":
+    main()
