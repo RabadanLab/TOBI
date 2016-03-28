@@ -97,8 +97,8 @@ case $SGE_TASK_ID in
       72) c="Y:1-50000000";;
       73) c="Y:50000001-59373566";;
       74) c="MT:1-16569";;
-#	*) c=$SGE_TASK_ID   
 esac
+
 echo "[region] "$c
 
 # turn on debugging
@@ -115,8 +115,7 @@ if [[ $stepstr == *B* ]]
 then
 	
 	mkdir -p ${outputdir}/vcffiles_${SGE_TASK_ID}
-	
-	# For one sample only
+
 	samtools mpileup -d 100000 -L 100000 -q 10 ${regionflag} -uf ${ref} ${input_bam} \
 		| $BcfTools view -p 1.1 -bvcg - \
 		| $BcfTools view - \
