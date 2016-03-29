@@ -1,4 +1,6 @@
 import ConfigParser
+import os
+import re
 
 def mpileup_cmdgen(start,end,ref,inputbam,case_name,output,source_dir):
     cmd = "qsub -sync y -t " + str(start) + "-" + str(end) \
@@ -27,6 +29,22 @@ def annotate_cmdgen(case_name,args):
     if(args.debug):
         print(cmd)
     return cmd
+
+def vcf_concat_cmdgen(args,case_name):
+    vcflist = []
+    for i in range(args.start,args.end):
+        vcfname = args.output + "/" + case_name \
+            + "/output_folder/raw_" + str(i) + ".vcf"
+        vcflist.append(vcfname)
+    vcfstr = " ".join(vcflist)
+    cmd = "vcf-concat "+ vcfstr + " |gzip -c > " + args.output + "/" + case_name \
+        + "/output_folder/" + case_name + ".vcf.gz"
+    return cmd
+
+def purge(directory, pattern):
+    for f in os.listdir(directory):
+        if re.search(pattern, f):
+            os.remove(os.path.join(directory, f))
 
 def parse_config(args):
     Config = ConfigParser.ConfigParser()

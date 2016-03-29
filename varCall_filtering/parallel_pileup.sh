@@ -107,11 +107,10 @@ then
 else
 	regionflag="-r $c";
 fi
-mkdir -p ${outputdir}/vcffiles_${SGE_TASK_ID}
+mkdir -p ${outputdir}
 
 #CURRENTLY USES SAMTOOLS 0.1.19 ONLY
 samtools mpileup -d 100000 -L 100000 -q 10 ${regionflag} -uf ${ref} ${input_bam} \
 	| bcftools view -p 1.1 -vcg -\
-	> ${outputdir}/vcffiles_${SGE_TASK_ID}/raw_${SGE_TASK_ID}.vcf;
+	> ${outputdir}/raw_${SGE_TASK_ID}.vcf;
 
-fi

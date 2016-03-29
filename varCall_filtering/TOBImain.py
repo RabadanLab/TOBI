@@ -146,13 +146,25 @@ def vcf_call(input_filenames, args):
             print(pileup_cmd)
         
         proc = subprocess.Popen(
-        pileup_cmd, 
-        shell=True,
-        stdout=subprocess.PIPE, 
-        stderr=subprocess.PIPE
-        ) 
+            pileup_cmd, 
+            shell=True,
+            stdout=subprocess.PIPE, 
+            stderr=subprocess.PIPE
+            ) 
         #wait for job completion 
         proc.wait()
+        
+        proc = subprocess.Popen(
+            helpers.vcf_concat_cmdgen(args,case_name), 
+            shell=True,
+            stdout=subprocess.PIPE, 
+            stderr=subprocess.PIPE
+            ) 
+        proc.wait()
+        
+        helpers.purge(args.output + "/" + case_name \
+            + "/output_folder", "raw_\d*\.vcf")
+        
     return 
 
 def annotate(input_filenames, args):
