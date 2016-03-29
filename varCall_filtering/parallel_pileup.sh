@@ -18,6 +18,7 @@ do
 	fi
 done
 
+#only works for human atm. change to work for all later
 case $SGE_TASK_ID in
       1) c="1:1-50000000";;
       2) c="1:50000001-100000000";;
@@ -106,15 +107,11 @@ then
 else
 	regionflag="-r $c";
 fi
+mkdir -p ${outputdir}/vcffiles_${SGE_TASK_ID}
 
-if [[ $stepstr == *B* ]]
-then
-	
-	mkdir -p ${outputdir}/vcffiles_${SGE_TASK_ID}
-
-	samtools mpileup -d 100000 -L 100000 -q 10 ${regionflag} -uf ${ref} ${input_bam} \
-		| $BcfTools view -p 1.1 -bvcg - \
-		| $BcfTools view - \
-		> ${outputdir}/vcffiles_${SGE_TASK_ID}/raw_${SGE_TASK_ID}.vcf;
+#CURRENTLY USES SAMTOOLS 0.1.19 ONLY
+samtools mpileup -d 100000 -L 100000 -q 10 ${regionflag} -uf ${ref} ${input_bam} \
+	| bcftools view -p 1.1 -vcg -\
+	> ${outputdir}/vcffiles_${SGE_TASK_ID}/raw_${SGE_TASK_ID}.vcf;
 
 fi

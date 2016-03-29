@@ -1,15 +1,15 @@
 import ConfigParser
 
-def mpileup_cmdgen(start,end,ref,inputbam,output):
-    cmd = "qsub -sync y -t " + start + "-" + end \
+def mpileup_cmdgen(start,end,ref,inputbam,case_name,output,source_dir):
+    cmd = "qsub -sync y -t " + str(start) + "-" + str(end) \
         + " -V " \
-        + " -e " + output + '/' + inputbam + "/logs " \
-        + " -o " + output + '/' + inputbam + "/logs " \
+        + "-e " + output + '/' + case_name + "/logs " \
+        + "-o " + output + '/' + case_name + "/logs " \
         + "-cwd -l mem=10G,time=1:: " \
-        + "parallel_pileup.sh" \
-        + " --bam " + inputbam \
+        + source_dir+ "/parallel_pileup.sh" \
+        + " --bam " + inputbam + "/" + case_name + ".bam"\
         + " --ref " + ref \
-        + " --outputdir " + output + '/' + inputbam + "/output_folder "
+        + " --outputdir " + output + '/' + case_name + "/output_folder "
     return cmd
 
 def annotate_cmdgen(case_name,args):

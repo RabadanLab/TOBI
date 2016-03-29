@@ -1,8 +1,7 @@
 import argparse
 import os
 import subprocess
-import helpers
-import ConfigParser
+import scripts.helpers as helpers
 import re
 
 def get_arg():
@@ -105,11 +104,11 @@ def main():
         print(args)
         
     input_filenames = []
-    #get list of .bam filenames in input directory
+    #get list of .bam filenames in input directory and remove '.bam' suffix
     for (dirpath, dirnames, filenames) in os.walk(args.inputdir):
         for filename in filenames:  
             if bool(re.search("^.*\.bam$",filename)):
-                input_filenames.append(filename)
+                input_filenames.append(filename[:-4])
         break  
     
     for case_name in input_filenames:
@@ -118,7 +117,7 @@ def main():
             os.makedirs(args.output + "/" + case_name)
             os.makedirs(args.output + "/" + case_name + "/logs")
             os.makedirs(args.output + "/" + case_name + "/output_folder") 
-    return
+  
     #vcf calling
     vcf_call(input_filenames,args)
 
@@ -127,13 +126,25 @@ def main():
 
 def vcf_call(input_filenames, args):
     for case_name in input_filenames:
+        source_dir = os.path.dirname(os.path.realpath(__file__))
         pileup_cmd = helpers.mpileup_cmdgen(
             args.start,
             args.end,
             args.ref,
-            args.inputdir + "/" + case_name,
-            args.output
+            args.inputdir,
+            case_name,
+            args.output,
+            source_dir
             )
+        
+        if args.debug:
+            print('[start]' + str(args.start))
+            print('[end]' + str(args.end))
+            print('[ref]' + args.ref)
+            print('[input]' + args.inputdir)
+            print('[output]' + args.output)
+            print(pileup_cmd)
+        
         proc = subprocess.Popen(
         pileup_cmd, 
         shell=True,
