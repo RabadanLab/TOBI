@@ -68,12 +68,12 @@ def get_arg():
     
     #arguments for annotate
     parser.add_argument(
-        '--plist',
-        help = "list of patient IDs"
+        '--snpeff',
+        help = "directory where snpEff is"
         )
     parser.add_argument(
-        '--vcfsuffix',
-        help = "suffix of vcf files that follows TCGA name"
+        '--annovcf',
+        help = "comma separated list of .vcf files for annotation."
         )
     
     software = os.path.dirname(os.path.realpath(__file__))
@@ -103,50 +103,36 @@ def main():
     if args.debug:
         print(args)
         
-    input_filenames = []
-    #get list of .bam filenames in input directory and remove '.bam' suffix
-    for (dirpath, dirnames, filenames) in os.walk(args.inputdir):
-        for filename in filenames:  
-            if bool(re.search("^.*\.bam$",filename)):
-                input_filenames.append(filename[:-4])
-        break  
-    
-    for case_name in input_filenames:
-        #for each case name/bam file, make output directories
-        if not os.path.exists(args.output + "/" + case_name):
-            os.makedirs(args.output + "/" + case_name)
-            os.makedirs(args.output + "/" + case_name + "/logs")
-            os.makedirs(args.output + "/" + case_name + "/output_folder") 
-  
     #vcf calling
-    vcf_call(input_filenames,args)
+    if "B" in args.steps or "b" in args.steps:
+        input_filenames = helpers.get_filenames(args.inputdir,"bam") 
+
+        if not os.path.exists(args.output):
+            os.makedirs(args.output + "/logs") 
+                
+        vcf_call(input_filenames,args)
+        #set inputdir as vcf_call's output
+        args.inputdir = args.output
 
     #annotate
-    #annotate(input_filenames, args)
+    if "A" in args.steps or "a" in args.steps:
+        input_filenames = helpers.get_filenames(args.inputdir,"vcf") 
+        #for each case name/bam file, make output directories
+        if not os.path.exists(args.output):
+            os.makedirs(args.output + "/logs")
+                
+        annotate(input_filenames, args)
+    
+    #filter
+    if bool(re.search(".*F.*",args.steps)):
+        pass
 
 def vcf_call(input_filenames, args):
+    source_dir = os.path.dirname(os.path.realpath(__file__))
     for case_name in input_filenames:
-        source_dir = os.path.dirname(os.path.realpath(__file__))
-        pileup_cmd = helpers.mpileup_cmdgen(
-            args.start,
-            args.end,
-            args.ref,
-            args.inputdir,
-            case_name,
-            args.output,
-            source_dir
-            )
-        
-        if args.debug:
-            print('[start]' + str(args.start))
-            print('[end]' + str(args.end))
-            print('[ref]' + args.ref)
-            print('[input]' + args.inputdir)
-            print('[output]' + args.output)
-            print(pileup_cmd)
-        
+        #run mpileup
         proc = subprocess.Popen(
-            pileup_cmd, 
+            helpers.mpileup_cmdgen(args,case_name,source_dir), 
             shell=True,
             stdout=subprocess.PIPE, 
             stderr=subprocess.PIPE
@@ -154,6 +140,7 @@ def vcf_call(input_filenames, args):
         #wait for job completion 
         proc.wait()
         
+        #concat raw_n.vcf files into new file
         proc = subprocess.Popen(
             helpers.vcf_concat_cmdgen(args,case_name), 
             shell=True,
@@ -162,23 +149,35 @@ def vcf_call(input_filenames, args):
             ) 
         proc.wait()
         
-        helpers.purge(args.output + "/" + case_name \
-            + "/output_folder", "raw_\d*\.vcf")
+        #purge raw_n.vf files
+        #ADD FLAG HERE
+        if True:
+            helpers.purge(args.output, "raw_\d*\.vcf")
         
     return 
 
 def annotate(input_filenames, args):
+    source_dir = os.path.dirname(os.path.realpath(__file__))
+    annovcf = args.annovcf.replace("\n","").split(',')
     for case_name in input_filenames:      
         if args.cluster == "hpc":
-            cmd = helpers.annotate_cmdgen(case_name,args)
             proc = subprocess.Popen(
-                cmd,
+                helpers.snpeff_cmdgen(args,case_name),
                 shell=True,
                 stdout=subprocess.PIPE, 
                 stderr=subprocess.PIPE
                 ) 
-                #wait for job completion 
+            #wait for job completion 
             proc.wait()
+            #for each annotation ref given, run snpSift
+            for vcf in annovcf:
+                proc = subprocess.Popen(
+                    helpers.snpsift_cmdgen(args,case_name,vcf),
+                    shell=True,
+                    stdout=subprocess.PIPE, 
+                    stderr=subprocess.PIPE
+                    )
+                proc.wait()
             
 if __name__ == "__main__":
     main()

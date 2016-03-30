@@ -2,30 +2,46 @@ import ConfigParser
 import os
 import re
 
-def mpileup_cmdgen(start,end,ref,inputbam,case_name,output,source_dir):
-    cmd = "qsub -sync y -t " + str(start) + "-" + str(end) \
+def mpileup_cmdgen(args,case_name,source_dir):
+    cmd = "qsub -sync y -t " + str(args.start) + "-" + str(args.end) \
         + " -V " \
-        + "-e " + output + '/' + case_name + "/logs " \
-        + "-o " + output + '/' + case_name + "/logs " \
+        + "-N " + case_name \
+        + " -e " + args.output + "/logs/"+ case_name +".vcfcall.e " \
+        + "-o " + args.output + "/logs/"+ case_name +".vcfcall.o " \
         + "-cwd -l mem=10G,time=1:: " \
-        + source_dir+ "/parallel_pileup.sh" \
-        + " --bam " + inputbam + "/" + case_name + ".bam"\
-        + " --ref " + ref \
-        + " --outputdir " + output + '/' + case_name + "/output_folder "
+        + source_dir + "/parallel_pileup.sh" \
+        + " --bam " + args.inputdir + "/" + case_name + ".bam"\
+        + " --ref " + args.ref \
+        + " --outputdir " + args.output 
+    if(args.debug):
+        print(cmd)
     return cmd
 
-def annotate_cmdgen(case_name,args):
-    cmd = "qsub -V -N filt-" + case_name \
-                + "-l mem=10G,time=2:: -pe smp 2 " \
-                + "-o " + args.output + "/" + case_name + "/logs " \
-                + "-e " + args.output + "/" + case_name + "/logs " \
-                + "-m as " \
-                + "do_annotation_filtering.sh_TCGA_protected.sh " \
-                + "--input-file " + args.inputdir + "/" + case_name \
-                + " -s " + args.steps \
-                + " --memory 6 --filter on " \
-                + "--config_file " + args.config \
-                + " --debug " + args.debug
+def snpeff_cmdgen(args,case_name):
+    cmd = "qsub -V -b y -sync y -N " + case_name \
+        + " -l mem=10G,time=2:: -pe smp 2 " \
+        + "-e " + args.output + "/logs/"+ case_name +".snpeff.e " \
+        + "-o " + args.output+"/"+case_name+".eff.vcf " \
+        + "java -Xmx6G " \
+        + "-jar "+ args.snpeff+"/snpEff.jar -c "+ args.snpeff+"/snpEff.config" \
+        + " GRCh37.71 " \
+        + "-noStats -v -lof -canon " \
+        + "-no-downstream -no-intergenic -no-intron -no-upstream -no-utr " \
+        + args.inputdir+"/"+case_name+".vcf.gz"\
+        + " > " + args.output + "/logs/"+ case_name +".snpeff.o"
+    if(args.debug):
+        print(cmd)
+    return cmd
+
+def snpsift_cmdgen(args,case_name,vcf):
+    cmd = "qsub -V -b y -sync y -N " + case_name \
+        + " -l mem=10G,time=2:: -pe smp 2 " \
+        + "-e " + args.output + "/logs/"+ case_name +".snpeff.e " \
+        + "-o " + args.output+"/"+case_name+".eff.vcf " \
+        + "java -Xmx6G " \
+        + "-jar "+ args.snpeff+"/SnpSift.jar annotate -v " \
+        + vcf + " " + args.output+"/"+case_name+".eff.vcf " \
+        + " > " + args.output + "/logs/"+ case_name +".snpeff.o"
     if(args.debug):
         print(cmd)
     return cmd
@@ -33,13 +49,30 @@ def annotate_cmdgen(case_name,args):
 def vcf_concat_cmdgen(args,case_name):
     vcflist = []
     for i in range(args.start,args.end):
-        vcfname = args.output + "/" + case_name \
-            + "/output_folder/raw_" + str(i) + ".vcf"
+        vcfname = args.output + "/raw_" + str(i) + ".vcf"
         vcflist.append(vcfname)
     vcfstr = " ".join(vcflist)
-    cmd = "vcf-concat "+ vcfstr + " |gzip -c > " + args.output + "/" + case_name \
-        + "/output_folder/" + case_name + ".vcf.gz"
+    cmd = "vcf-concat "+ vcfstr + " |gzip -c > " \
+        + args.output + "/" + case_name + ".vcf.gz"
     return cmd
+
+def get_filenames(inputdir,extension):
+    input_filenames = []
+    #get list of .bam/.vcf filenames in input directory 
+    #and remove '.bam'/'.vcf' suffix
+    if extension == "bam":
+        pattern = "^.*\.bam$"
+        snip_val = -4
+    if extension == "vcf":
+        pattern = "^.*\.vcf.gz$"
+        snip_val = -7
+    
+    for (dirpath, dirnames, filenames) in os.walk(inputdir):
+        for filename in filenames:  
+            if bool(re.search(pattern,filename)):
+                input_filenames.append(filename[:snip_val])
+        break
+    return input_filenames
 
 def purge(directory, pattern):
     for f in os.listdir(directory):
@@ -54,10 +87,8 @@ def parse_config(args):
               (args.steps, 'steps', 'main'), 
               (args.cluster, 'cluster', 'main'),
               (args.ref, 'ref', 'varcall'),
-              (args.start, 'start', 'varcall'),
-              (args.end, 'end', 'varcall'),
-              (args.plist, 'plist', 'annotate'),
-              (args.vcfsuffix, 'vcfsuffix', 'annotate')
+              (args.snpeff, 'snpeff', 'annotate'),
+              (args.annovcf, 'annovcf', 'annotate')
               ]:
         if not i[0] and i[1] in ConfigSectionMap(Config, i[2]):
             vars(args)[i[1]] = ConfigSectionMap(Config, i[2])[i[1]]
