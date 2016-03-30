@@ -117,7 +117,7 @@ then
 	
 	echo "python vcf2report and parse_tsv"
 	
-	case_name=$(echo ${outputdir} | awk -F'/' '{print $(NF-1)}')  #cjm, change for appropriate naming depth
+	case_name=$(echo ${outputdir} | awk -F'/' '{print $(NF-2)}')  #cjm, change for appropriate naming depth
 	echo ${case_name}
 	
 	# Replacing # and ' characters
@@ -135,7 +135,7 @@ then
 			${outputdir}/${inputfile}.all.annotations_not_filt.tsv \
 			${outputdir}/${inputfile}.all.annotations_filt_indel_techn_biol.tsv
 		gzip ${outputdir}/${inputfile}.all.annotations_not_filt.tsv #cjm, making more space
-		gzip ${outputdir}/${inputfile}.all.annotations.vcf #cjm
+		gzip ${outputdir}/${inputfile} #cjm 
 	fi
 	
 	echo "[date 4] "`date`;
@@ -143,6 +143,8 @@ fi
 #debug option currently not implemented... #cjm
 echo "debug option is " $debug
 if [ $debug -eq 0 ]; then #cjm
+	echo "zipping ${outputdir}/${inputfile}.all.annotations.vcf"
+	gzip ${outputdir}/${inputfile}.all.annotations.vcf
 	echo "removing extra files"
         rm -f ${outputdir}/${inputfile}*eff.vcf #cjm
         rm -f ${outputdir}/${inputfile}*dbSNP.vcf #cjm
