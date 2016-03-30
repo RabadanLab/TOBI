@@ -1,4 +1,4 @@
-######cjm edits for TOBI BAM files Mar 28, 2016 ####
+######cjm edits for TOBI####
 
 ########################################################################################
 TTTTTTTTTTTTTTTTTTTTTTT          OOOOOOOOO          BBBBBBBBBBBBBBBBB        IIIIIIIIII
@@ -20,9 +20,9 @@ TTTTTT  T:::::T  TTTTTT     O::::::O   O::::::O       B::::B     B:::::B       I
 
 TOBI: Tumor Only Boosting Identification of Driver Mutations
 
-Input: BAM files as described in "list file" from step0; maf file to generate "list file" #WXS bam files in `list_file`.
+Input: vcf files as described in "list file" from step0; maf file to generate "list file" #WXS bam files in `list_file`.
 
-Ver. 1.2.BAM: Mar 28, 2016
+Ver. 1.2: Mar 22, 2016
 cjmadubata modified from Alireza Roshan Ghias's code (Ver. 1.1: Nov 07, 2014 https://github.com/alireza202/TOBI.git TOBI)
 
 ########################################################################################
@@ -39,10 +39,10 @@ followed by a common suffix
 	each TCGA-XX-XXXX represents one patient and one line in "list_file"
 
 Step 2. Check the batch run file
-	varCall_filtering/batch_multi_array.bam_input.sh
+	varCall_filtering/batch_multi_array.LGG_TCGA.sh_suffix 
 
-Step 5. Run all samples using -BAF flags:
-	varCall_filtering/batch_multi_array.bam_input.sh --config /path/to/config_file 
+Step 5. Run all samples using -AF flags:
+	varCall_filtering/batch_multi_array.LGG_TCGA.sh_suffix --config /path/to/config_file 
 	--steps AF --bam all -s 0 -e 0 --cluster hpc --filter on --vcfsuf oxoG.snp.capture.tcga.vcf
 	# --bam -s -e flags are not used for VCF analysis
 
@@ -62,4 +62,4 @@ Step 7a. If using COSMIC after v66, need to replace "cnt" column with "cosmic_ns
 ### machine_learning ###
 Step 8. Pre-processing using R. Needs customization each time.
 
-	machine_learning/pre_processing_glioma.151230.R
+	machine_learning/pre_processing.R
