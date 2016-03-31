@@ -14,6 +14,7 @@ def mpileup_cmdgen(args,case_name,source_dir):
         + " --ref " + args.ref \
         + " --outputdir " + args.output 
     if(args.debug):
+        print('[Performing mpileup]')
         print(cmd)
     return cmd
 
@@ -30,6 +31,7 @@ def snpeff_cmdgen(args,case_name):
         + args.inputdir+"/"+case_name+".vcf.gz"\
         + " > " + args.output + "/logs/"+ case_name +".snpeff.o"
     if(args.debug):
+        print('[Annotating with snpEff]')
         print(cmd)
     return cmd
 
@@ -37,10 +39,24 @@ def snpsift_cmdgen(args,case_name,vcf):
     cmd = "qsub -V -b y -sync y -N " + case_name \
         + " -l mem=10G,time=2:: -pe smp 2 " \
         + "-e " + args.output + "/logs/"+ case_name +".snpeff.e " \
-        + "-o " + args.output+"/"+case_name+".eff.vcf " \
+        + "-o " + args.output+"/"+case_name+".eff.vcf.tmp " \
         + "java -Xmx6G " \
         + "-jar "+ args.snpeff+"/SnpSift.jar annotate -v " \
         + vcf + " " + args.output+"/"+case_name+".eff.vcf " \
+        + " > " + args.output + "/logs/"+ case_name +".snpeff.o"
+    if(args.debug):
+        print(cmd)
+    return cmd
+
+def snpdbnsfp_cmdgen(args,case_name,dbnsfp,header):
+    cmd = "qsub -V -b y -sync y -N " + case_name \
+        + " -l mem=10G,time=2:: -pe smp 2 " \
+        + "-e " + args.output + "/logs/"+ case_name +".snpeff.e " \
+        + "-o " + args.output+"/"+case_name+".eff.vcf " \
+        + "java -Xmx6G " \
+        + "-jar "+ args.snpeff+"/SnpSift.jar dbnsfp " \
+        + dbnsfp + " -v -f " + header + " " \
+        + args.output+"/"+case_name+".eff.vcf " \
         + " > " + args.output + "/logs/"+ case_name +".snpeff.o"
     if(args.debug):
         print(cmd)
@@ -54,6 +70,9 @@ def vcf_concat_cmdgen(args,case_name):
     vcfstr = " ".join(vcflist)
     cmd = "vcf-concat "+ vcfstr + " |gzip -c > " \
         + args.output + "/" + case_name + ".vcf.gz"
+    if args.debug:
+        print('[Concatenating vcf files and sorting]')
+        print(cmd)
     return cmd
 
 def get_filenames(inputdir,extension):
@@ -66,7 +85,6 @@ def get_filenames(inputdir,extension):
     if extension == "vcf":
         pattern = "^.*\.vcf.gz$"
         snip_val = -7
-    
     for (dirpath, dirnames, filenames) in os.walk(inputdir):
         for filename in filenames:  
             if bool(re.search(pattern,filename)):
@@ -88,7 +106,8 @@ def parse_config(args):
               (args.cluster, 'cluster', 'main'),
               (args.ref, 'ref', 'varcall'),
               (args.snpeff, 'snpeff', 'annotate'),
-              (args.annovcf, 'annovcf', 'annotate')
+              (args.annovcf, 'annovcf', 'annotate'),
+              (args.dbnsfp, 'dbnsfp', 'annotate')
               ]:
         if not i[0] and i[1] in ConfigSectionMap(Config, i[2]):
             vars(args)[i[1]] = ConfigSectionMap(Config, i[2])[i[1]]

@@ -88,7 +88,7 @@ then
 	${java7} -Xmx${java_memory}G $SNPEFF GRCh37.71 -noStats -v -lof \
 		-canon -no-downstream -no-intergenic -no-intron -no-upstream -no-utr ${outputdir}/${inputfile} \
 		> ${outputdir}/${inputfile}.eff.vcf
-	${java7} -Xmx${java_memory}G $SNPSIFT annotate $dbSnp138 -v ${outputdir}/${inputfile}.eff.vcf \
+${java7} -Xmx${java_memory}G $SNPSIFT annotate $dbSnp138 -v ${outputdir}/${inputfile}.eff.vcf \
 		> ${outputdir}/${inputfile}.eff.dbSNP.vcf
 	${java7} -Xmx${java_memory}G $SNPSIFT annotate $clinvar -v ${outputdir}/${inputfile}.eff.dbSNP.vcf \
 		> ${outputdir}/${inputfile}.eff.dbSNP.clinvar.vcf
