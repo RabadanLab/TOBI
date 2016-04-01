@@ -154,16 +154,18 @@ def vcf_call(input_filenames, args):
         proc.wait()
         
         proc = subprocess.Popen(
-            "vcf-sort " + case_name + ".vcf.gz > " 
-                + args.output+"/"+case_name+".sorted.vcf.gz", 
+            "vcf-sort -c " + args.output+"/"+case_name + ".vcf  > " 
+                + args.output+"/"+case_name+".sorted.vcf", 
             shell=True,
             stdout=subprocess.PIPE, 
             stderr=subprocess.PIPE
             ) 
         proc.wait()
-        os.remove(args.output+"/"+case_name+".vcf.gz")
-        os.rename(args.output+"/"+case_name+".sorted.vcf.gz",
-                  args.output+"/"+case_name+".vcf.gz")
+        
+        os.remove(args.output+"/"+case_name+".vcf")
+        os.rename(args.output+"/"+case_name+".sorted.vcf",
+                  args.output+"/"+case_name+".vcf")
+                  
         
         #purge raw_n.vf files
         #ADD FLAG HERE
@@ -197,11 +199,11 @@ def annotate(input_filenames, args):
                     )
                 proc.wait()
                 #hacky way to create temp file fix this later
-                
+                '''
                 os.remove(args.output+"/"+case_name+".eff.vcf")
                 os.rename(args.output+"/"+case_name+".eff.vcf.tmp",
                           args.output+"/"+case_name+".eff.vcf"
-                          )
+                          )'''
             #snpSIFT dbnsfp
             proc = subprocess.Popen(
                 helpers.snpdbnsfp_cmdgen(args,case_name,args.dbnsfp,dbnsfp_header),

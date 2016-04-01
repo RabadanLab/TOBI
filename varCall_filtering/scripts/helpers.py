@@ -28,7 +28,7 @@ def snpeff_cmdgen(args,case_name):
         + " GRCh37.71 " \
         + "-noStats -v -lof -canon " \
         + "-no-downstream -no-intergenic -no-intron -no-upstream -no-utr " \
-        + args.inputdir+"/"+case_name+".vcf.gz"\
+        + args.inputdir+"/"+case_name+".vcf"\
         + " > " + args.output + "/logs/"+ case_name +".snpeff.o"
     if(args.debug):
         print('[Annotating with snpEff]')
@@ -39,7 +39,7 @@ def snpsift_cmdgen(args,case_name,vcf):
     cmd = "qsub -V -b y -sync y -N " + case_name \
         + " -l mem=10G,time=2:: -pe smp 2 " \
         + "-e " + args.output + "/logs/"+ case_name +".snpeff.e " \
-        + "-o " + args.output+"/"+case_name+".eff.vcf.tmp " \
+        + "-o " + args.output+"/"+case_name+".eff.vcf " \
         + "java -Xmx6G " \
         + "-jar "+ args.snpeff+"/SnpSift.jar annotate -v " \
         + vcf + " " + args.output+"/"+case_name+".eff.vcf " \
@@ -64,12 +64,12 @@ def snpdbnsfp_cmdgen(args,case_name,dbnsfp,header):
 
 def vcf_concat_cmdgen(args,case_name):
     vcflist = []
-    for i in range(args.start,args.end):
+    for i in range(args.start,args.end+1):
         vcfname = args.output + "/raw_" + str(i) + ".vcf"
         vcflist.append(vcfname)
     vcfstr = " ".join(vcflist)
-    cmd = "vcf-concat "+ vcfstr + " |gzip -c > " \
-        + args.output + "/" + case_name + ".vcf.gz"
+    cmd = "vcf-concat "+ vcfstr + " > " \
+        + args.output + "/" + case_name + ".vcf"
     if args.debug:
         print('[Concatenating vcf files and sorting]')
         print(cmd)
@@ -81,14 +81,12 @@ def get_filenames(inputdir,extension):
     #and remove '.bam'/'.vcf' suffix
     if extension == "bam":
         pattern = "^.*\.bam$"
-        snip_val = -4
     if extension == "vcf":
-        pattern = "^.*\.vcf.gz$"
-        snip_val = -7
+        pattern = "^.*\.vcf$"
     for (dirpath, dirnames, filenames) in os.walk(inputdir):
         for filename in filenames:  
             if bool(re.search(pattern,filename)):
-                input_filenames.append(filename[:snip_val])
+                input_filenames.append(filename[:-4])
         break
     return input_filenames
 
