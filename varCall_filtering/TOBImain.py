@@ -13,11 +13,11 @@ def get_arg():
     #main arguments
     parser.add_argument(
         '--inputdir',
-        help = "directory for bam/vcf files"
+        help = "directory for bam/vcf files. (REQUIRED)"
         )
     parser.add_argument(
         '--output',
-        help = "output directory"
+        help = "output directory. (REQUIRED)"
         )
     parser.add_argument(
         '--config',
@@ -45,7 +45,13 @@ def get_arg():
         '--debug',
         default = False,
         action = 'store_true',
-        help = "Debug flag. NOT IMPLEMENTED"                
+        help = "Debug flag. Default: False"                
+        )
+    parser.add_argument(
+        '--cleanup',
+        default = True,
+        action = 'store_false',
+        help = "keep temporary debug files. Default True"                
         )
     
     #arguments for varcall
@@ -111,21 +117,23 @@ def main():
     if "B" in args.steps or "b" in args.steps:
         input_filenames = helpers.get_filenames(args.inputdir,"bam") 
 
-        if not os.path.exists(args.output):
-            os.makedirs(args.output + "/logs") 
+        if not os.path.exists(args.output+"/vcfcall"):
+            os.makedirs(args.output + "/vcfcall/logs") 
                 
         vcf_call(input_filenames,args)
         #set inputdir as vcf_call's output
-        args.inputdir = args.output
+        args.inputdir = args.output +"/vcfcall"
 
     #annotate
     if "A" in args.steps or "a" in args.steps:
         input_filenames = helpers.get_filenames(args.inputdir,"vcf") 
         #for each case name/bam file, make output directories
-        if not os.path.exists(args.output):
-            os.makedirs(args.output + "/logs")
+        if not os.path.exists(args.output+"/annotate"):
+            os.makedirs(args.output + "/annotate/logs")
                 
         annotate(input_filenames, args)
+        #set inputdir as annotate's output
+        args.inputdir = args.output +"/annotate"
     
     #filter
     if bool(re.search(".*F.*",args.steps)):
@@ -153,25 +161,23 @@ def vcf_call(input_filenames, args):
             ) 
         proc.wait()
         
+        #sort vcf file
         proc = subprocess.Popen(
-            "vcf-sort -c " + args.output+"/"+case_name + ".vcf  > " 
-                + args.output+"/"+case_name+".sorted.vcf", 
+            "vcf-sort -c " + args.output+"/vcfcall/"+case_name + ".vcf  > " 
+                + args.output+"/vcfcall/"+case_name+".sorted.vcf", 
             shell=True,
             stdout=subprocess.PIPE, 
             stderr=subprocess.PIPE
             ) 
         proc.wait()
         
-        os.remove(args.output+"/"+case_name+".vcf")
-        os.rename(args.output+"/"+case_name+".sorted.vcf",
-                  args.output+"/"+case_name+".vcf")
-                  
-        
+        #hacky way to create temp file fix this later
+        os.remove(args.output+"/vcfcall/"+case_name+".vcf")
+        os.rename(args.output+"/vcfcall/"+case_name+".sorted.vcf",
+                  args.output+"/vcfcall/"+case_name+".vcf")
         #purge raw_n.vf files
-        #ADD FLAG HERE
-        if not args.debug:
-            helpers.purge(args.output, "raw_\d*\.vcf")
-        
+        if args.cleanup:
+            helpers.purge(args.output+"/vcfcall", "raw_\d*\.vcf")
     return 
 
 def annotate(input_filenames, args):
@@ -188,7 +194,6 @@ def annotate(input_filenames, args):
                 stderr=subprocess.PIPE
                 ) 
             proc.wait()
-
             #snpSIFT annotate for each vcf provided
             for vcf in annovcf:
                 proc = subprocess.Popen(
@@ -199,11 +204,10 @@ def annotate(input_filenames, args):
                     )
                 proc.wait()
                 #hacky way to create temp file fix this later
-                '''
-                os.remove(args.output+"/"+case_name+".eff.vcf")
-                os.rename(args.output+"/"+case_name+".eff.vcf.tmp",
-                          args.output+"/"+case_name+".eff.vcf"
-                          )'''
+                os.remove(args.output+"/annotate/"+case_name+".eff.vcf")
+                os.rename(args.output+"/annotate/"+case_name+".eff.vcf.tmp",
+                          args.output+"/annotate/"+case_name+".eff.vcf"
+                          )
             #snpSIFT dbnsfp
             proc = subprocess.Popen(
                 helpers.snpdbnsfp_cmdgen(args,case_name,args.dbnsfp,dbnsfp_header),
@@ -212,6 +216,8 @@ def annotate(input_filenames, args):
                 stderr=subprocess.PIPE
                 )
             proc.wait()
+            if args.cleanup:
+                os.remove(args.output+"/annotate/"+case_name+".eff.vcf")
 
 def filter(input_filenames,args):
     pass

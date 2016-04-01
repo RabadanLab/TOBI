@@ -3,73 +3,78 @@ import os
 import re
 
 def mpileup_cmdgen(args,case_name,source_dir):
+    #generate command for mpileup
     cmd = "qsub -sync y -t " + str(args.start) + "-" + str(args.end) \
         + " -V " \
         + "-N " + case_name \
-        + " -e " + args.output + "/logs/"+ case_name +".vcfcall.e " \
-        + "-o " + args.output + "/logs/"+ case_name +".vcfcall.o " \
+        + " -e " + args.output + "/vcfcall/logs/"+ case_name +".vcfcall.e " \
+        + "-o " + args.output + "/vcfcall/logs/"+ case_name +".vcfcall.o " \
         + "-cwd -l mem=10G,time=1:: " \
         + source_dir + "/parallel_pileup.sh" \
         + " --bam " + args.inputdir + "/" + case_name + ".bam"\
         + " --ref " + args.ref \
-        + " --outputdir " + args.output 
+        + " --outputdir " + args.output + "/vcfcall"
     if(args.debug):
         print('[Performing mpileup]')
         print(cmd)
     return cmd
 
 def snpeff_cmdgen(args,case_name):
+    #generate command for snpeff 
     cmd = "qsub -V -b y -sync y -N " + case_name \
         + " -l mem=10G,time=2:: -pe smp 2 " \
-        + "-e " + args.output + "/logs/"+ case_name +".snpeff.e " \
-        + "-o " + args.output+"/"+case_name+".eff.vcf " \
+        + "-e " + args.output + "/annotate/logs/"+ case_name +".snpeff.e " \
+        + "-o " + args.output+"/annotate/"+case_name+".eff.vcf " \
         + "java -Xmx6G " \
         + "-jar "+ args.snpeff+"/snpEff.jar -c "+ args.snpeff+"/snpEff.config" \
         + " GRCh37.71 " \
         + "-noStats -v -lof -canon " \
         + "-no-downstream -no-intergenic -no-intron -no-upstream -no-utr " \
         + args.inputdir+"/"+case_name+".vcf"\
-        + " > " + args.output + "/logs/"+ case_name +".snpeff.o"
+        + " > " + args.output + "/annotate/logs/"+ case_name +".snpeff.o"
     if(args.debug):
         print('[Annotating with snpEff]')
         print(cmd)
     return cmd
 
 def snpsift_cmdgen(args,case_name,vcf):
+    #generate command for snpsift annotate
     cmd = "qsub -V -b y -sync y -N " + case_name \
         + " -l mem=10G,time=2:: -pe smp 2 " \
-        + "-e " + args.output + "/logs/"+ case_name +".snpeff.e " \
-        + "-o " + args.output+"/"+case_name+".eff.vcf " \
+        + "-e " + args.output + "/annotate/logs/"+ case_name +".snpeff.e " \
+        + "-o " + args.output+"/annotate/"+case_name+".eff.vcf.tmp " \
         + "java -Xmx6G " \
         + "-jar "+ args.snpeff+"/SnpSift.jar annotate -v " \
-        + vcf + " " + args.output+"/"+case_name+".eff.vcf " \
-        + " > " + args.output + "/logs/"+ case_name +".snpeff.o"
+        + vcf + " " + args.output+"/annotate/"+case_name+".eff.vcf " \
+        + " > " + args.output + "/annotate/logs/"+ case_name +".snpeff.o"
     if(args.debug):
         print(cmd)
     return cmd
 
 def snpdbnsfp_cmdgen(args,case_name,dbnsfp,header):
+    #generate command for snpsift dbnsfp
     cmd = "qsub -V -b y -sync y -N " + case_name \
         + " -l mem=10G,time=2:: -pe smp 2 " \
-        + "-e " + args.output + "/logs/"+ case_name +".snpeff.e " \
-        + "-o " + args.output+"/"+case_name+".eff.vcf " \
+        + "-e " + args.output + "/annotate/logs/"+ case_name +".snpeff.e " \
+        + "-o " + args.output+"/annotate/"+case_name+".eff.all.vcf " \
         + "java -Xmx6G " \
         + "-jar "+ args.snpeff+"/SnpSift.jar dbnsfp " \
         + dbnsfp + " -v -f " + header + " " \
-        + args.output+"/"+case_name+".eff.vcf " \
-        + " > " + args.output + "/logs/"+ case_name +".snpeff.o"
+        + args.output+"/annotate/"+case_name+".eff.vcf " \
+        + " > " + args.output + "/annotate/logs/"+ case_name +".snpeff.o"
     if(args.debug):
         print(cmd)
     return cmd
 
 def vcf_concat_cmdgen(args,case_name):
+    #generate command for vcf-concat
     vcflist = []
     for i in range(args.start,args.end+1):
-        vcfname = args.output + "/raw_" + str(i) + ".vcf"
+        vcfname = args.output + "/vcfcall/raw_" + str(i) + ".vcf"
         vcflist.append(vcfname)
     vcfstr = " ".join(vcflist)
     cmd = "vcf-concat "+ vcfstr + " > " \
-        + args.output + "/" + case_name + ".vcf"
+        + args.output + "/vcfcall/" + case_name + ".vcf"
     if args.debug:
         print('[Concatenating vcf files and sorting]')
         print(cmd)
@@ -91,6 +96,7 @@ def get_filenames(inputdir,extension):
     return input_filenames
 
 def purge(directory, pattern):
+    #function to purge files matching a pattern
     for f in os.listdir(directory):
         if re.search(pattern, f):
             os.remove(os.path.join(directory, f))
