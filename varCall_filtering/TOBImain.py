@@ -113,8 +113,11 @@ def main():
     if args.debug:
         print(args)
         
+    helpers.check_main_args(args)
+        
     #vcf calling
     if "B" in args.steps or "b" in args.steps:
+        helpers.check_varcall_args(args)
         input_filenames = helpers.get_filenames(args.inputdir,"bam") 
 
         if not os.path.exists(args.output+"/vcfcall"):
@@ -126,6 +129,7 @@ def main():
 
     #annotate
     if "A" in args.steps or "a" in args.steps:
+        helpers.check_anno_args(args)
         input_filenames = helpers.get_filenames(args.inputdir,"vcf") 
         #for each case name/bam file, make output directories
         if not os.path.exists(args.output+"/annotate"):
@@ -218,6 +222,8 @@ def annotate(input_filenames, args):
             proc.wait()
             if args.cleanup:
                 os.remove(args.output+"/annotate/"+case_name+".eff.vcf")
+                
+            #INSERT ONE EFFECT PER LINE CODE HERE
 
 def filter(input_filenames,args):
     pass

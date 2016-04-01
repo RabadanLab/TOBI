@@ -1,6 +1,7 @@
 import ConfigParser
 import os
 import re
+import sys
 
 def mpileup_cmdgen(args,case_name,source_dir):
     #generate command for mpileup
@@ -28,7 +29,7 @@ def snpeff_cmdgen(args,case_name):
         + "java -Xmx6G " \
         + "-jar "+ args.snpeff+"/snpEff.jar -c "+ args.snpeff+"/snpEff.config" \
         + " GRCh37.71 " \
-        + "-noStats -v -lof -canon " \
+        + "-noStats -v -t -lof -canon " \
         + "-no-downstream -no-intergenic -no-intron -no-upstream -no-utr " \
         + args.inputdir+"/"+case_name+".vcf"\
         + " > " + args.output + "/annotate/logs/"+ case_name +".snpeff.o"
@@ -129,3 +130,23 @@ def ConfigSectionMap(Config, section):
             print("exception on %s!" % option)
             dict1[option] = None
     return dict1
+
+def check_main_args(args):
+    if args.inputdir == None:
+        sys.exit("[ERROR]: Missing required '--inputdir' argument.")
+    if args.output == None:
+        sys.exit("[ERROR]: Missing required '--output' argument.")
+    if args.steps == None:
+        sys.exit("[ERROR]: Missing required '--steps' argument.")
+    if args.cluster == None:
+        sys.exit("[ERROR]: Missing rquired '--cluster' argument.")
+        
+def check_varcall_args(args):
+    if args.ref == None:
+        sys.exit("[ERROR]: Missing required '--ref' argument.")
+
+def check_anno_args(args):
+    if args.snpeff == None:
+        sys.exit("[ERROR]: Missing required '--snpeff' argument.")
+    if args.dbnsfp == None:
+        sys.exit("[ERROR]: Missing required '--dbnsfp' argument.")
