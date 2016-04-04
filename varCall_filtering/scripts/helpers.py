@@ -20,6 +20,20 @@ def mpileup_cmdgen(args,case_name,source_dir):
         print(cmd)
     return cmd
 
+def vcf_concat_cmdgen(args,case_name):
+    #generate command for vcf-concat
+    vcflist = []
+    for i in range(args.start,args.end+1):
+        vcfname = args.output + "/vcfcall/raw_" + str(i) + ".vcf"
+        vcflist.append(vcfname)
+    vcfstr = " ".join(vcflist)
+    cmd = "vcf-concat "+ vcfstr + " > " \
+        + args.output + "/vcfcall/" + case_name + ".vcf"
+    if args.debug:
+        print('[Concatenating vcf files and sorting]')
+        print(cmd)
+    return cmd
+
 def snpeff_cmdgen(args,case_name):
     #generate command for snpeff 
     cmd = "qsub -V -b y -sync y -N " + case_name \
@@ -29,7 +43,7 @@ def snpeff_cmdgen(args,case_name):
         + "java -Xmx6G " \
         + "-jar "+ args.snpeff+"/snpEff.jar -c "+ args.snpeff+"/snpEff.config" \
         + " GRCh37.71 " \
-        + "-noStats -v -t -lof -canon " \
+        + "-noStats -v -lof -canon " \
         + "-no-downstream -no-intergenic -no-intron -no-upstream -no-utr " \
         + args.inputdir+"/"+case_name+".vcf"\
         + " > " + args.output + "/annotate/logs/"+ case_name +".snpeff.o"
@@ -67,17 +81,11 @@ def snpdbnsfp_cmdgen(args,case_name,dbnsfp,header):
         print(cmd)
     return cmd
 
-def vcf_concat_cmdgen(args,case_name):
-    #generate command for vcf-concat
-    vcflist = []
-    for i in range(args.start,args.end+1):
-        vcfname = args.output + "/vcfcall/raw_" + str(i) + ".vcf"
-        vcflist.append(vcfname)
-    vcfstr = " ".join(vcflist)
-    cmd = "vcf-concat "+ vcfstr + " > " \
-        + args.output + "/vcfcall/" + case_name + ".vcf"
-    if args.debug:
-        print('[Concatenating vcf files and sorting]')
+def oneEff_cmdgen(args,case_name,source_dir):
+    cmd = "cat "+ args.output + "/annotate/" + case_name + ".eff.all.vcf | " \
+        + source_dir+"/scripts/vcfEffFirstLine.pl > " \
+        + args.output +"/annotate/"+case_name+ ".all.annotations.vcf"
+    if(args.debug):
         print(cmd)
     return cmd
 
