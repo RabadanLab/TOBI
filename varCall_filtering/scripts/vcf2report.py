@@ -20,11 +20,11 @@ def convert(vcf_input):
 	d_info = {}
 	
 	# list for entries in FORMAT field
-	format_field = []
+	#format_field = []
 	# list for entries in header
 	header=[]
 	# number of samples in vcf file
-	number_samples = 1 
+	#number_samples = 1 
 	
 	# boolean isfirst? if yes, we print the header once and turn off
 	isfirst = 1
@@ -49,13 +49,13 @@ def convert(vcf_input):
 		elif ( line[0:1] == "#" ):
 			header = line.split("\t")
 			# get the number of samples
-			number_samples = len(header) - 9
+			#number_samples = len(header) - 9
 		# non-empty line
 		elif ( line ):
 			# if isfirst bool, print the header
 			if (isfirst):
 				# get list of elts in format field
-				format_field = line.split("\t")[8].split(":")
+				#format_field = line.split("\t")[8].split(":")
 	
 				# print first part of header
 				output += "\t".join(list_lower(header[0:7])) + "\t"
@@ -67,9 +67,9 @@ def convert(vcf_input):
 				output +="\t".join(list_lower(sorted(d_info))) + "\t"
 	
 				# print FORMAT part of header
-				for i in range(1,1+number_samples): 
-					myjoiner = "_" + str(i) + "\t"
-					output +=myjoiner.join(list_lower(format_field)) + "_" + str(i) + "\t"
+				#for i in range(1,1+number_samples): 
+				#	myjoiner = "_" + str(i) + "\t"
+				#	output +=myjoiner.join(list_lower(format_field)) + "_" + str(i) + "\t"
 	
 				output +="\n"
 	
@@ -102,8 +102,8 @@ def convert(vcf_input):
 			output +="\t"
 	
 			# print FORMAT part of header
-			for i in range(9,9+number_samples): 
-				output +="\t".join(linelist[i].split(":")) + "\t"
+			#for i in range(9,9+number_samples): 
+			#	output +="\t".join(linelist[i].split(":")) + "\t"
 	
 			output +="\n"
 	return output

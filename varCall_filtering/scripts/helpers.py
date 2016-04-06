@@ -83,7 +83,7 @@ def snpdbnsfp_cmdgen(args,case_name,dbnsfp,header):
 
 def oneEff_cmdgen(args,case_name,source_dir):
     cmd = "cat "+ args.output + "/annotate/" + case_name + ".eff.all.vcf | " \
-        + source_dir+"/scripts/vcfEffFirstLine.pl > " \
+        + source_dir+"/scripts/vcfEffOnePerLine.pl > " \
         + args.output +"/annotate/"+case_name+ ".all.annotations.vcf"
     if(args.debug):
         print(cmd)

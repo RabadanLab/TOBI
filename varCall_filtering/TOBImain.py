@@ -191,7 +191,6 @@ def vcf_call(input_filenames, args):
         #purge raw_n.vf files
         if args.cleanup:
             helpers.purge(args.output+"/vcfcall", "raw_\d*\.vcf")
-    return 
 
 def annotate(input_filenames, args):
     source_dir = os.path.dirname(os.path.realpath(__file__))
@@ -262,12 +261,14 @@ def filter_vcf(input_filenames,args):
             script ="/scripts/filter_indel_techn_biol.R "
         else:
             sys.exit("[ERROR]: Invalid '--vcftype' argument: " + args.vcftype)
+            
         proc = subprocess.Popen(
             "Rscript " + source_dir + script
                 + args.output+"/filter/"+case_name+"_not_filt.tsv "
                 + args.output+"/filter/"+case_name+"_filt_indel_techn_biol.tsv",
             shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
             )
+        
         if args.debug:
             while True:
                 nextline = proc.stdout.readline()
@@ -282,7 +283,7 @@ def filter_vcf(input_filenames,args):
                 sys.stderr.write(nextline)
                 sys.stderr.flush()
         proc.wait()
-    return
+
             
 if __name__ == "__main__":
     main()
