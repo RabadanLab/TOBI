@@ -9,3 +9,5 @@ v
 
 
 varCall_filtering/scripts/TOBIvcf.py
+
+*.pyc
