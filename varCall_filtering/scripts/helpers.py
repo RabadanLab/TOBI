@@ -120,7 +120,8 @@ def parse_config(args):
               (args.ref, 'ref', 'varcall'),
               (args.snpeff, 'snpeff', 'annotate'),
               (args.annovcf, 'annovcf', 'annotate'),
-              (args.dbnsfp, 'dbnsfp', 'annotate')
+              (args.dbnsfp, 'dbnsfp', 'annotate'),
+              (args.vcftype, 'vcftype', 'filter')
               ]:
         if not i[0] and i[1] in ConfigSectionMap(Config, i[2]):
             vars(args)[i[1]] = ConfigSectionMap(Config, i[2])[i[1]]
@@ -158,3 +159,7 @@ def check_anno_args(args):
         sys.exit("[ERROR]: Missing required '--snpeff' argument.")
     if args.dbnsfp == None:
         sys.exit("[ERROR]: Missing required '--dbnsfp' argument.")
+
+def check_filt_args(args):
+    if args.vcftype == None:
+        sys.exit("[ERROR]: Missing required '--vcftype' argument.")

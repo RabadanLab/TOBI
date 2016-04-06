@@ -3,6 +3,9 @@ import os
 import subprocess
 import scripts.helpers as helpers
 import re
+import scripts.vcf2report as vcf2report
+import scripts.parse_tsv as parse_tsv
+import sys
 
 def get_arg():
     """Get Arguments"""
@@ -86,6 +89,13 @@ def get_arg():
         help = "path to dbNSFP file"
         )
     
+    #arguments for filter
+    parser.add_argument(
+        "--vcftype", 
+        choices = ['default','TCGA'], 
+        help="verbose mode: echo commands, etc (default: off)"
+        )
+    
     software = os.path.dirname(os.path.realpath(__file__))
     parser.add_argument(
         "--scripts",
@@ -141,7 +151,12 @@ def main():
     
     #filter
     if bool(re.search(".*F.*",args.steps)):
-        pass
+        #CHECK FILTER DEPENDENT ARGUMENTS HERE
+        input_filenames = helpers.get_filenames(args.inputdir,"vcf") 
+        #for each case name/bam file, make output directories
+        if not os.path.exists(args.output+"/filter"):
+            os.makedirs(args.output + "/filter/logs")
+        filter_vcf(input_filenames, args)
 
 def vcf_call(input_filenames, args):
     source_dir = os.path.dirname(os.path.realpath(__file__))
@@ -220,8 +235,54 @@ def annotate(input_filenames, args):
             if args.cleanup:
                 os.remove(args.output+"/annotate/"+case_name+".eff.all.vcf")
 
-def filter(input_filenames,args):
-    pass
+def filter_vcf(input_filenames,args):
+    source_dir = os.path.dirname(os.path.realpath(__file__))
+    #read in file
+    for case_name in input_filenames:
+        inputfile = open(args.inputdir+"/"+case_name+".vcf","r")
+        case_file = inputfile.read()
+        inputfile.close()
+    #find GERP++ and replace with GERP
+        case_file = case_file.replace('GERP++','GERP')
+    #vcf2report
+        case_file = vcf2report.convert(case_file)
+    #parse_tsv case_name
+        case_file = parse_tsv.convert(case_file,case_name)
+    #get rid of # and ' characters
+        case_file = case_file.replace("#","")
+        case_file = case_file.replace("'","")
+    #write to new file
+        outputfile = open(args.output+"/filter/"+case_name+"_not_filt.tsv","w")
+        outputfile.write(case_file)
+        outputfile.close()
+    #apply R script filters
+        if args.vcftype == "default":
+            script = "/scripts/filter_indel_techn_biol.pediatric.R "
+        elif args.vcftype == "TCGA":
+            script ="/scripts/filter_indel_techn_biol.R "
+        else:
+            sys.exit("[ERROR]: Invalid '--vcftype' argument: " + args.vcftype)
+        proc = subprocess.Popen(
+            "Rscript " + source_dir + script
+                + args.output+"/filter/"+case_name+"_not_filt.tsv "
+                + args.output+"/filter/"+case_name+"_filt_indel_techn_biol.tsv",
+            shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+            )
+        if args.debug:
+            while True:
+                nextline = proc.stdout.readline()
+                if nextline == '' and proc.poll() != None:
+                    break
+                sys.stdout.write(nextline)
+                sys.stdout.flush()
+            while True:
+                nextline = proc.stderr.readline()
+                if nextline == '' and proc.poll() != None:
+                    break
+                sys.stderr.write(nextline)
+                sys.stderr.flush()
+        proc.wait()
+    return
             
 if __name__ == "__main__":
     main()
