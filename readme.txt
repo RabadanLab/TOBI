@@ -47,7 +47,7 @@ Step 5. Run all samples using -BAF flags:
 	# --bam -s -e flags are not used for VCF analysis
 
 Step 6. Check number of lines in final file sizes, using the script below:
-	varCall_filtering/tobi_out_empty.sh {main_outputdir_from_config} {list_file}	
+	varCall_filtering/tobi_out_empty.bam.sh {main_outputdir_from_config} {list_file}	
 	
 If some cases did not run, find the problem, and run them again.
 
