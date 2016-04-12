@@ -153,6 +153,8 @@ def check_main_args(args):
 def check_varcall_args(args):
     if args.ref == None:
         sys.exit("[ERROR]: Missing required '--ref' argument.")
+    if args.end <= args.start:
+        sys.exit("[ERROR]: '--end' argument >= '--start' argument")
 
 def check_anno_args(args):
     if args.snpeff == None:

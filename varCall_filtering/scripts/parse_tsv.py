@@ -1,7 +1,7 @@
 # stdin:	tsv annotated file
 # stdout:	formatted columns
 
-
+#convert a vcf into a tsv file
 def convert(input_str,case_name):
 	isfirst = 1
 	myheader = []

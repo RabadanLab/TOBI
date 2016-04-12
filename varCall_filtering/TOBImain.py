@@ -10,29 +10,32 @@ import sys
 def get_arg():
     """Get Arguments"""
 
-    prog_description = """TOBIv1.2 ADD DESC HERE"""
+    prog_description = """TOBIv1.2: 
+        Tumor Only Boosting Identification of Driver Mutations
+        All arguments can be specified in a config file. (See
+        included varCall.config file as an example)."""
     parser = argparse.ArgumentParser(description=prog_description)
     
     #main arguments
     parser.add_argument(
         '--inputdir',
-        help = "directory for bam/vcf files. (REQUIRED)"
+        help = "[REQUIRED] directory for bam/vcf files. "
         )
     parser.add_argument(
         '--output',
-        help = "output directory. (REQUIRED)"
+        help = "[REQUIRED] output directory."
         )
     parser.add_argument(
         '--config',
-        help = """optional config file specifying command line arguments.
+        help = """config file specifying command line arguments.
             Arguments specified in the config file will overwrite command
             line arguments."""                
         )
     parser.add_argument(
         '--steps',
         type = str,
-        help = """Specify which steps of pipeline to run. (REQUIRED)
-            B: variant calling
+        help = """[REQUIRED] Specify which steps of pipeline to run.
+            V: variant calling
             A: annotate 
             F: filter
             eg. --steps AF"""
@@ -40,73 +43,61 @@ def get_arg():
     parser.add_argument(
         '--cluster',
         choices = ['hpc','amazon'],
-        help = """Specify which cluster to run on. (REQUIRED)
+        help = """[REQUIRED] Specify which cluster to run on.
             hpc: run on an SGE hpc cluster
-            amazon: run on amazon's clusters (NOT IMPLEMENTED)"""
+            amazon: CURRENTLY UNIMPLEMENTED"""
         )
     parser.add_argument(
         '--debug',
         default = False,
         action = 'store_true',
-        help = "Debug flag. Default: False"                
+        help = "Debug/verbose flag. Default: False"                
         )
     parser.add_argument(
         '--cleanup',
         default = True,
         action = 'store_false',
-        help = "keep temporary debug files. Default True"                
+        help = "Keep temporary debug files. Default True"                
         )
     
     #arguments for varcall
     parser.add_argument(
         '--ref',
-        help = "Reference genome file. Required for VCF calling"
+        help = "[REQUIRED - VCF] Reference genome file."
         )
     parser.add_argument(
         '--start',
         type = int,
         default = 1,
-        help = "Start index. Default 1"
+        help = "Start index used for testing. Default 1"
         )
     parser.add_argument(
         '--end',
         type = int,
         default = 74,
-        help = "End index. Default 74"
+        help = "End index used for testing. Default 74"
         )
     
     #arguments for annotate
     parser.add_argument(
         '--snpeff',
-        help = "directory where snpEff is"
+        help = "[REQUIRED - ANNOTATE] Directory where snpEff is"
         )
     parser.add_argument(
         '--annovcf',
-        help = "comma separated list of .vcf files for annotation."
+        help = """[REQUIRED - ANNOTATE] A comma separated list of .vcf files 
+            to annotate with."""
         )
     parser.add_argument(
         '--dbnsfp',
-        help = "path to dbNSFP file"
+        help = "[REQUIRED - ANNOTATE] Path to dbNSFP file"
         )
     
     #arguments for filter
     parser.add_argument(
         "--vcftype", 
         choices = ['default','TCGA'], 
-        help="verbose mode: echo commands, etc (default: off)"
-        )
-    
-    software = os.path.dirname(os.path.realpath(__file__))
-    parser.add_argument(
-        "--scripts",
-        default=software,
-        help="""location of scripts dir (directory where this script resides 
-        - use this option only if qsub-ing with the Oracle Grid Engine)"""
-        )
-    parser.add_argument(
-        "--verbose", 
-        action="store_true", 
-        help="verbose mode: echo commands, etc (default: off)"
+        help="Specifies vcf type specically for TCGA filtering"
         )
 
     args = parser.parse_args()
@@ -126,7 +117,7 @@ def main():
     helpers.check_main_args(args)
         
     #vcf calling
-    if "B" in args.steps or "b" in args.steps:
+    if "V" in args.steps or "v" in args.steps:
         helpers.check_varcall_args(args)
         input_filenames = helpers.get_filenames(args.inputdir,"bam") 
 
@@ -225,12 +216,13 @@ def annotate(input_filenames, args):
             if args.cleanup:
                 os.remove(args.output+"/annotate/"+case_name+".eff.vcf")
                 
-            #INSERT ONE EFFECT PER LINE CODE HERE
+            #split effects into one effect per line
             proc = subprocess.Popen(
                 helpers.oneEff_cmdgen(args,case_name,source_dir),
                 shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
                 )
             proc.wait()
+            
             if args.cleanup:
                 os.remove(args.output+"/annotate/"+case_name+".eff.all.vcf")
 
@@ -241,20 +233,20 @@ def filter_vcf(input_filenames,args):
         inputfile = open(args.inputdir+"/"+case_name+".vcf","r")
         case_file = inputfile.read()
         inputfile.close()
-    #find GERP++ and replace with GERP
+        #find GERP++ and replace with GERP
         case_file = case_file.replace('GERP++','GERP')
-    #vcf2report
+        #vcf2report
         case_file = vcf2report.convert(case_file)
-    #parse_tsv case_name
+        #parse_tsv case_name
         case_file = parse_tsv.convert(case_file,case_name)
-    #get rid of # and ' characters
+        #get rid of # and ' characters
         case_file = case_file.replace("#","")
         case_file = case_file.replace("'","")
-    #write to new file
+        #write to new file
         outputfile = open(args.output+"/filter/"+case_name+"_not_filt.tsv","w")
         outputfile.write(case_file)
         outputfile.close()
-    #apply R script filters
+        #apply R script filters
         if args.vcftype == "default":
             script = "/scripts/filter_indel_techn_biol.pediatric.R "
         elif args.vcftype == "TCGA":
