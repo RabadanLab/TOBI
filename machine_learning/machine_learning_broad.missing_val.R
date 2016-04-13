@@ -3,7 +3,8 @@
 # performs machine learning w/ gradient boosting, calculates performance statistics, saves top-predicted genes
 rm(list = ls())
 
-library(plyr); library(dplyr)
+library(plyr)
+library(dplyr)
 library(caret)
 library(doMC)
 library("session", lib.loc="~/Library/R/3.1/library")
@@ -22,12 +23,8 @@ print(args)
 ################################################################################
 # Sourcing the functions
 #contains new na_minus1.R script that does mean and na_to_0 for converting non-numeric columns into 0
-file_path = paste(TOBI_path, "/machine_learning/ml_scripts/", sep = "")
-file.sources = list.files(path = file_path,
-                          pattern="*.R",
-                          full.names = TRUE)
-for (item in file.sources) source(item)
-rm(file.sources, item, file_path)
+file_path = paste(TOBI_path, "/machine_learning/ml_scripts/ml_helpers.R", sep = "")
+source(file_path)
 modelInfo = custom_gbm()
 
 ################################################################################

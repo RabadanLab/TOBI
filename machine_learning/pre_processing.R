@@ -16,12 +16,8 @@ print(args)
 time1 = Sys.time()
 ##########################################################################
 # Sourcing the functions
-file_path = paste(TOBI_path, "/machine_learning/pp_scripts", sep = "")
-file.sources = list.files(path = file_path,
-                          pattern="*.R",
-                          full.names = TRUE)
-for (item in file.sources) source(item)
-rm(file.sources, item, file_path)
+file_path = paste(TOBI_path, "/machine_learning/pp_scripts/pp_helpers.R", sep = "")
+source(file_path)
 
 ##########################################################################
 # Reading mutations

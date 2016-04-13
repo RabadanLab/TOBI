@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import argparse
 import os
 import subprocess
@@ -57,7 +59,7 @@ def get_arg():
         '--cleanup',
         default = True,
         action = 'store_false',
-        help = "Keep temporary debug files. Default True"                
+        help = "Delete temporary debug files. Default True"                
         )
     
     #arguments for varcall
@@ -99,7 +101,12 @@ def get_arg():
         choices = ['default','TCGA'], 
         help="Specifies vcf type specically for TCGA filtering"
         )
-
+    
+    #print help if no arguments are given
+    if len(sys.argv)==1:
+        parser.print_help()
+        sys.exit(1)
+        
     args = parser.parse_args()
     # add key-value pairs to the args dict
     vars(args)['cwd'] = os.getcwd()
@@ -153,27 +160,15 @@ def vcf_call(input_filenames, args):
     source_dir = os.path.dirname(os.path.realpath(__file__))
     for case_name in input_filenames:
         #run mpileup
-        proc = subprocess.Popen(
-            helpers.mpileup_cmdgen(args,case_name,source_dir), 
-            shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-            ) 
-        #wait for job completion 
-        proc.wait()
+        helpers.runShellCmd(helpers.mpileup_cmdgen(args,case_name,source_dir))
         
         #concat raw_n.vcf files into new file
-        proc = subprocess.Popen(
-            helpers.vcf_concat_cmdgen(args,case_name), 
-            shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-            ) 
-        proc.wait()
+        helpers.runShellCmd(helpers.vcf_concat_cmdgen(args,case_name))
         
         #sort vcf file
-        proc = subprocess.Popen(
-            "vcf-sort -c " + args.output+"/vcfcall/"+case_name + ".vcf  > " 
-                + args.output+"/vcfcall/"+case_name+".sorted.vcf", 
-            shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-            ) 
-        proc.wait()
+        helpers.runShellCmd(
+                "vcf-sort -c " + args.output+"/vcfcall/"+case_name + ".vcf  > " 
+                + args.output+"/vcfcall/"+case_name+".sorted.vcf")
         
         #hacky way to create temp file fix this later
         os.remove(args.output+"/vcfcall/"+case_name+".vcf")
@@ -190,38 +185,22 @@ def annotate(input_filenames, args):
     for case_name in input_filenames:      
         if args.cluster == "hpc":
             #snpEff annotate
-            proc = subprocess.Popen(
-                helpers.snpeff_cmdgen(args,case_name),
-                shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-                ) 
-            proc.wait()
+            helpers.runShellCmd(helpers.snpeff_cmdgen(args,case_name)) 
             #snpSIFT annotate for each vcf provided
             for vcf in annovcf:
-                proc = subprocess.Popen(
-                    helpers.snpsift_cmdgen(args,case_name,vcf),
-                    shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-                    )
-                proc.wait()
+                helpers.runShellCmd(helpers.snpsift_cmdgen(args,case_name,vcf))
                 #hacky way to create & replace temp file. fix this later
                 os.remove(args.output+"/annotate/"+case_name+".eff.vcf")
                 os.rename(args.output+"/annotate/"+case_name+".eff.vcf.tmp",
                           args.output+"/annotate/"+case_name+".eff.vcf"
                           )
             #snpSIFT dbnsfp
-            proc = subprocess.Popen(
-                helpers.snpdbnsfp_cmdgen(args,case_name,args.dbnsfp,dbnsfp_header),
-                shell=True,stdout=subprocess.PIPE, stderr=subprocess.PIPE
-                )
-            proc.wait()
+            helpers.runShellCmd(helpers.snpdbnsfp_cmdgen(args,case_name,args.dbnsfp,dbnsfp_header))
             if args.cleanup:
                 os.remove(args.output+"/annotate/"+case_name+".eff.vcf")
                 
             #split effects into one effect per line
-            proc = subprocess.Popen(
-                helpers.oneEff_cmdgen(args,case_name,source_dir),
-                shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-                )
-            proc.wait()
+            helpers.runShellCmd(helpers.oneEff_cmdgen(args,case_name,source_dir))
             
             if args.cleanup:
                 os.remove(args.output+"/annotate/"+case_name+".eff.all.vcf")
@@ -260,7 +239,6 @@ def filter_vcf(input_filenames,args):
                 + args.output+"/filter/"+case_name+"_filt_indel_techn_biol.tsv",
             shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
             )
-        
         if args.debug:
             while True:
                 nextline = proc.stdout.readline()

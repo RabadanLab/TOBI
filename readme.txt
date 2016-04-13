@@ -18,6 +18,8 @@
 
 TOBI: Tumor Only Boosting Identification of Driver Mutations
 
+ADD DESC HERE ~
+
 Ver. 1.2: April 12, 2016
 cjmadubata & tchu modified from Alireza Roshan Ghias's code 
 (Ver. 1.1: Nov 07, 2014 https://github.com/alireza202/TOBI.git TOBI)
@@ -33,21 +35,24 @@ dependencies:
 	- samtools 0.1.19
 	- bcftools 0.1.19
 	- VCFtools v0.1.10.1
-	- snpEff v3.6
+	- snpEff v3.6 & dbNSFP (https://sites.google.com/site/jpopgen/dbNSFP)
 	- snpSift v3.6
-	- dbNSFP (https://sites.google.com/site/jpopgen/dbNSFP)
 
 inputs at each step:
-	V: .bam files in a folder. Files must have .bam extension.
-	A: .vcf files in a folder. Files must have .vcf extension.
-	F: .vcf files in a folder. Files must have .vcf extension.
+	V (variant calling): indexed .bam files in a folder. Files must have .bam extension 
+		and filename cannot start with a number.
+	A (annotation): .vcf files in a folder. Files must have .vcf extension and filename
+		cannot start with a number. If starting from this step, please format vcf to
+		match bcftools output.
+	F (filter): .vcf files in a folder. Files must have .vcf extension and filename 
+		cannot start with a number. 
 	
 usage: TOBImain.py [-h] [--inputdir INPUTDIR] [--output OUTPUT]
                    [--config CONFIG] [--steps STEPS] [--cluster {hpc,amazon}]
                    [--debug] [--cleanup] [--ref REF] [--start START]
                    [--end END] [--snpeff SNPEFF] [--annovcf ANNOVCF]
-                   [--dbnsfp DBNSFP] [--vcftype {default,TCGA}]
 
+                   [--dbnsfp DBNSFP] [--vcftype {default,TCGA}]
 TOBIv1.2: Tumor Only Boosting Identification of Driver Mutations. All arguments
 can be specified in a config file. (See included varCall.config file as an
 example). 
@@ -64,7 +69,7 @@ optional arguments:
   --cluster {hpc,amazon}	[REQUIRED] Specify which cluster to run on. hpc: run
                         	on an SGE hpc cluster amazon: CURRENTLY UNIMPLEMENTED
   --debug               	Debug/verbose flag. Default: False
-  --cleanup             	Keep temporary debug files. Default True
+  --cleanup             	Delete temporary debug files. Default True
   --ref REF             	[REQUIRED - VCF] Reference genome file.
   --start START         	Start index used for testing. Default 1
   --end END             	End index used for testing. Default 74

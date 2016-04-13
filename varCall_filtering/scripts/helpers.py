@@ -2,6 +2,7 @@ import ConfigParser
 import os
 import re
 import sys
+import subprocess
 
 def mpileup_cmdgen(args,case_name,source_dir):
     #generate command for mpileup
@@ -99,9 +100,12 @@ def get_filenames(inputdir,extension):
         pattern = "^.*\.vcf$"
     for (dirpath, dirnames, filenames) in os.walk(inputdir):
         for filename in filenames:  
-            if bool(re.search(pattern,filename)):
+            if bool(re.search(pattern,filename)) \
+            and not bool(re.search("^\d",filename)):
                 input_filenames.append(filename[:-4])
         break
+    if len(input_filenames) == 0:
+        sys.exit("[ERROR] no files found in input directory")
     return input_filenames
 
 def purge(directory, pattern):
@@ -139,6 +143,14 @@ def ConfigSectionMap(Config, section):
             print("exception on %s!" % option)
             dict1[option] = None
     return dict1
+
+def runShellCmd(cmd):
+    proc = subprocess.Popen(
+        cmd, 
+        shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+        ) 
+    if proc.wait() != 0:
+        sys.exit("[ERROR] process '" + cmd + "' terminated with non-zero exit code")
 
 def check_main_args(args):
     if args.inputdir == None:
