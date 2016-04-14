@@ -12,7 +12,7 @@ def mpileup_cmdgen(args,case_name,source_dir):
         + " -e " + args.output + "/vcfcall/logs/"+ case_name +".vcfcall.e " \
         + "-o " + args.output + "/vcfcall/logs/"+ case_name +".vcfcall.o " \
         + "-cwd -l mem=10G,time=1:: " \
-        + source_dir + "/parallel_pileup.sh" \
+        + source_dir + "/varCall_filtering/parallel_pileup.sh" \
         + " --bam " + args.inputdir + "/" + case_name + ".bam"\
         + " --ref " + args.ref \
         + " --outputdir " + args.output + "/vcfcall"
@@ -84,7 +84,7 @@ def snpdbnsfp_cmdgen(args,case_name,dbnsfp,header):
 
 def oneEff_cmdgen(args,case_name,source_dir):
     cmd = "cat "+ args.output + "/annotate/" + case_name + ".eff.all.vcf | " \
-        + source_dir+"/scripts/vcfEffOnePerLine.pl > " \
+        + source_dir+"/varCall_filtering/scripts/vcfEffOnePerLine.pl > " \
         + args.output +"/annotate/"+case_name+ ".all.annotations.vcf"
     if(args.debug):
         print(cmd)

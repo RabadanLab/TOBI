@@ -208,7 +208,7 @@ somatic_annot = function(df, somatic) {
   # "start_position"
   
   y_list = unique(df$case)
-  som_list = unique(somatic$case_id)
+  #som_list = unique(somatic$case_id)
   
   # Choose the corresponding cases from somatic
   somatic = subset(somatic, somatic$case_id %in% y_list)
@@ -222,9 +222,9 @@ somatic_annot = function(df, somatic) {
   df$Y = "non_som"
   
   for (id in somatic$ID) {
-    a = which(df$ID == id)
-    if (length(a)) {
-      df$Y[a] = "som"
+    index = which(df$ID == id)
+    if (length(index)) {
+      df$Y[index] = "som"
       somatic$Not_Present[somatic$ID == id] = 0
     }
   }

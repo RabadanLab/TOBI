@@ -51,8 +51,8 @@ usage: TOBImain.py [-h] [--inputdir INPUTDIR] [--output OUTPUT]
                    [--config CONFIG] [--steps STEPS] [--cluster {hpc,amazon}]
                    [--debug] [--cleanup] [--ref REF] [--start START]
                    [--end END] [--snpeff SNPEFF] [--annovcf ANNOVCF]
-
                    [--dbnsfp DBNSFP] [--vcftype {default,TCGA}]
+                   
 TOBIv1.2: Tumor Only Boosting Identification of Driver Mutations. All arguments
 can be specified in a config file. (See included varCall.config file as an
 example). 

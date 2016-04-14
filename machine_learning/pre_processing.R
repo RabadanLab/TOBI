@@ -11,8 +11,9 @@ input_file <- args[[1]]
 output_file <- args[[2]]
 somatic_file <- args[[3]]
 TOBI_path <- args[[4]]
+#add check_missed optional flag
+#add verbose flag
 print(args)
-
 time1 = Sys.time()
 ##########################################################################
 # Sourcing the functions
@@ -37,8 +38,8 @@ table(somatic$Not_Present)
 ################################################################################
 # addin gene_freq to the data
 gene_freq_file = paste(TOBI_path, 
-                       "/machine_learning/pp_data/gene_count_acl_length_merged.txt", 
-                       sep = "")
+  "/machine_learning/pp_data/gene_count_acl_length_merged.txt", 
+  sep = "")
 gene_freq_length = my_read_table(gene_freq_file)
 
 mt = gene_freq_fun(mt, gene_freq_length)

@@ -3,14 +3,14 @@
 import argparse
 import os
 import subprocess
-import scripts.helpers as helpers
+import varCall_filtering.scripts.helpers as helpers
 import re
-import scripts.vcf2report as vcf2report
-import scripts.parse_tsv as parse_tsv
+import varCall_filtering.scripts.vcf2report as vcf2report
+import varCall_filtering.scripts.parse_tsv as parse_tsv
 import sys
 
 def get_arg():
-    """Get Arguments"""
+    #Get Arguments
 
     prog_description = """TOBIv1.2: 
         Tumor Only Boosting Identification of Driver Mutations
@@ -227,9 +227,9 @@ def filter_vcf(input_filenames,args):
         outputfile.close()
         #apply R script filters
         if args.vcftype == "default":
-            script = "/scripts/filter_indel_techn_biol.pediatric.R "
+            script = "/varCall_filtering/scripts/filter_indel_techn_biol.pediatric.R "
         elif args.vcftype == "TCGA":
-            script ="/scripts/filter_indel_techn_biol.R "
+            script ="/varCall_filtering/scripts/filter_indel_techn_biol.R "
         else:
             sys.exit("[ERROR]: Invalid '--vcftype' argument: " + args.vcftype)
             
