@@ -13,7 +13,7 @@ def get_arg():
     
     parser.add_argument(
         "step",
-        choices = ['pp','ml'],
+        choices = ['preprocess','machinelearning'],
         help = "pp: preprocessing step; ml: machine learning step"
         )
     parser.add_argument(
@@ -39,6 +39,12 @@ def get_arg():
     parser.add_argument(
         '--suffix',
         help = '[ML ARG] a label specific to this particular run (e.g. <date>_<disease>)'
+        )
+    parser.add_argument(
+        "--vcftype", 
+        choices = ['default','TCGA'], 
+        default = "default",
+        help="Specifies vcf type specically for TCGA filtering"
         )
     parser.add_argument(
         '--train_size',
@@ -83,6 +89,7 @@ def pp_cmdgen(args,source_dir):
         + args.output + " " \
         + args.somatic + " " \
         + source_dir + " " \
+        + args.vcftype + " " \
         + pipe
     if args.verbose:
         print(cmd)
@@ -100,6 +107,7 @@ def ml_cmdgen(args,source_dir):
         + args.suffix + " " \
         + args.train_size + " " \
         + source_dir + " " \
+        + args.vcftype + " " \
         + pipe
     if args.verbose:
         print(cmd)
@@ -120,11 +128,11 @@ def main():
     check_main_args(args)
     
     #preprocessing
-    if args.step == "pp":
+    if args.step == "preprocess":
         runShellCmd(pp_cmdgen(args,source_dir))
     
     #machine learning
-    if args.step == "ml":
+    if args.step == "machinelearning":
         check_ml_args(args)
         runShellCmd(ml_cmdgen(args,source_dir))
 

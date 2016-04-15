@@ -4,7 +4,6 @@ import argparse
 import os
 import subprocess
 import varCall_filtering.scripts.helpers as helpers
-import re
 import varCall_filtering.scripts.vcf2report as vcf2report
 import varCall_filtering.scripts.parse_tsv as parse_tsv
 import sys
@@ -40,6 +39,7 @@ def get_arg():
             V: variant calling
             A: annotate 
             F: filter
+            M: merge
             eg. --steps AF"""
         )
     parser.add_argument(
@@ -71,13 +71,13 @@ def get_arg():
         '--start',
         type = int,
         default = 1,
-        help = "Start index used for testing. Default 1"
+        help = "Start index used for testing. Will not work in config. Default 1"
         )
     parser.add_argument(
         '--end',
         type = int,
         default = 74,
-        help = "End index used for testing. Default 74"
+        help = "End index used for testing. Will not work in config. Default 74"
         )
     
     #arguments for annotate
@@ -148,13 +148,25 @@ def main():
         args.inputdir = args.output +"/annotate"
     
     #filter
-    if bool(re.search(".*F.*",args.steps)):
-        #CHECK FILTER DEPENDENT ARGUMENTS HERE
+    if "F" in args.steps or "f" in args.steps:
+        helpers.check_filt_args(args)
         input_filenames = helpers.get_filenames(args.inputdir,"vcf") 
         #for each case name/bam file, make output directories
         if not os.path.exists(args.output+"/filter"):
             os.makedirs(args.output + "/filter/logs")
         filter_vcf(input_filenames, args)
+        #set inputdir as filter's output
+        args.inputdir = args.output +"/filter"
+    
+    #merge
+    if "M" in args.steps or "m" in args.steps:
+        input_filenames = helpers.get_filenames(args.inputdir,"tsv")
+        if len(input_filenames) <= 1:
+            sys.exit("[ERROR] One or less files to merge.")
+        if not os.path.exists(args.output+"/final"):
+            os.makedirs(args.output + "/final/logs")
+        merge_tsv(input_filenames,args)
+        
 
 def vcf_call(input_filenames, args):
     source_dir = os.path.dirname(os.path.realpath(__file__))
@@ -195,7 +207,9 @@ def annotate(input_filenames, args):
                           args.output+"/annotate/"+case_name+".eff.vcf"
                           )
             #snpSIFT dbnsfp
-            helpers.runShellCmd(helpers.snpdbnsfp_cmdgen(args,case_name,args.dbnsfp,dbnsfp_header))
+            helpers.runShellCmd(
+                helpers.snpdbnsfp_cmdgen(args,case_name,args.dbnsfp,dbnsfp_header)
+                )
             if args.cleanup:
                 os.remove(args.output+"/annotate/"+case_name+".eff.vcf")
                 
@@ -253,7 +267,23 @@ def filter_vcf(input_filenames,args):
                 sys.stderr.write(nextline)
                 sys.stderr.flush()
         proc.wait()
+        if args.cleanup:
+            os.remove(args.output+"/filter/"+case_name+"_not_filt.tsv")
 
-            
+def merge_tsv(input_filenames,args):
+    first = True
+    for case_name in input_filenames:
+        #save first file into output
+        inputfile = open(args.inputdir+"/"+case_name+".tsv","r")
+        case_file = inputfile.read()
+        inputfile.close()
+        if first:
+            first = False
+            outputfile = open(args.output+"/final/"+case_name+".merged.tsv","a")
+            outputfile.write(case_file[:case_file.rfind('\n')])
+        #remove header from next files and merge into output
+        else:
+            outputfile.write(case_file[case_file.find('\n'):case_file.rfind('\n')])
+    outputfile.close()
 if __name__ == "__main__":
     main()

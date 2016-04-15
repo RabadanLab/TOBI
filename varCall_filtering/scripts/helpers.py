@@ -85,7 +85,7 @@ def snpdbnsfp_cmdgen(args,case_name,dbnsfp,header):
 def oneEff_cmdgen(args,case_name,source_dir):
     cmd = "cat "+ args.output + "/annotate/" + case_name + ".eff.all.vcf | " \
         + source_dir+"/varCall_filtering/scripts/vcfEffOnePerLine.pl > " \
-        + args.output +"/annotate/"+case_name+ ".all.annotations.vcf"
+        + args.output +"/annotate/"+case_name+ ".vcf"
     if(args.debug):
         print(cmd)
     return cmd
@@ -98,6 +98,8 @@ def get_filenames(inputdir,extension):
         pattern = "^.*\.bam$"
     if extension == "vcf":
         pattern = "^.*\.vcf$"
+    if extension == "tsv":
+        pattern = "^.*\.tsv$"
     for (dirpath, dirnames, filenames) in os.walk(inputdir):
         for filename in filenames:  
             if bool(re.search(pattern,filename)) \
