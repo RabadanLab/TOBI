@@ -8,13 +8,13 @@ import subprocess
 def get_arg():
     prog_description = """TOBIv1.2: 
         Tumor Only Boosting Identification of Driver Mutations.
-        Machine learning step. <ADD DESC HERE>"""
+        Machine learning step."""
     parser = argparse.ArgumentParser(description = prog_description)
     
     parser.add_argument(
         "step",
         choices = ['preprocess','machinelearning'],
-        help = "pp: preprocessing step; ml: machine learning step"
+        help = "preprocess: preprocessing step; machinelearning: machine learning step"
         )
     parser.add_argument(
         '--input',

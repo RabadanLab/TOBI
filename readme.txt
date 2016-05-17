@@ -24,9 +24,6 @@ Ver. 1.2: April 12, 2016
 cjmadubata & tchu modified from Alireza Roshan Ghias's code 
 (Ver. 1.1: Nov 07, 2014 https://github.com/alireza202/TOBI.git TOBI)
 
-#########################################################################################
-###varCall_filtering###
-
 dependencies:
 	- Python 2.7.11
 	- Perl v5.10.1
@@ -38,6 +35,9 @@ dependencies:
 	- snpEff v3.6 & dbNSFP (https://sites.google.com/site/jpopgen/dbNSFP)
 	- snpSift v3.6
 
+#########################################################################################
+###varCall_filtering###
+
 inputs at each step:
 	V (variant calling): indexed .bam files in a folder. Files must have .bam extension 
 		and filename cannot start with a number.
@@ -47,7 +47,7 @@ inputs at each step:
 	F (filter): .vcf files in a folder. Files must have .vcf extension and filename 
 		cannot start with a number. 
 	
-usage: TOBImain.py [-h] [--inputdir INPUTDIR] [--output OUTPUT]
+usage: TOBIvaf.py [-h] [--inputdir INPUTDIR] [--output OUTPUT]
                    [--config CONFIG] [--steps STEPS] [--cluster {hpc,amazon}]
                    [--debug] [--cleanup] [--ref REF] [--start START]
                    [--end END] [--snpeff SNPEFF] [--annovcf ANNOVCF]
@@ -79,7 +79,39 @@ optional arguments:
   --dbnsfp DBNSFP       	[REQUIRED - ANNOTATE] Path to dbNSFP file
   --vcftype {default,TCGA}	Specifies vcf type specically for TCGA filtering
 
+#########################################################################################
 ### machine_learning ###
 Step 8. Pre-processing using R. Needs customization each time.
 
-	machine_learning/pre_processing.R
+usage: TOBIml.py [-h] [--input INPUT] [--output OUTPUT] [--somatic SOMATIC]
+                 [--log LOG] [--check_missed CHECK_MISSED] [--suffix SUFFIX]
+                 [--vcftype {default,TCGA}] [--train_size TRAIN_SIZE]
+                 [--verbose]
+                 {preprocess,machinelearning}
+
+TOBIv1.2: Tumor Only Boosting Identification of Driver Mutations. Machine
+learning step.
+
+positional arguments:
+  {preprocess,machinelearning}
+						preprocess: preprocessing step; 
+						machinelearning: machine learning step
+						
+optional arguments:
+  -h, --help            show this help message and exit
+  --input INPUT         [REQUIRED] input file
+  --output OUTPUT       [REQUIRED] output file
+  --somatic SOMATIC     [REQUIRED] formatted file containing somatic variants
+  --log LOG             Optional argument to specify a log to pipe stdout and
+                        stderr to
+  --check_missed CHECK_MISSED
+                        [PP ARG] checking which mutations in important genes
+                        are missed by filtering
+  --suffix SUFFIX       [ML ARG] a label specific to this particular run (e.g.
+                        <date>_<disease>)
+  --vcftype {default,TCGA}
+                        Specifies vcf type specically for TCGA filtering
+  --train_size TRAIN_SIZE
+                        [ML ARG] number of patients you want in the training
+                        set.
+  --verbose             verbose flag
