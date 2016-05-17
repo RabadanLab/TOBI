@@ -61,9 +61,9 @@ optional arguments:
   -h, --help            	show this help message and exit
   --inputdir INPUTDIR   	[REQUIRED] directory for bam/vcf files.
   --output OUTPUT       	[REQUIRED] output directory.
-  --config CONFIG       	config file specifying command line arguments.
-                        	Arguments specified in the config file will overwrite
-                        	command line arguments.
+  --config CONFIG       	Config file specifying command line arguments.
+            				Arguments specified in the command line overwrite config 
+            				file arguments.
   --steps STEPS         	[REQUIRED] Specify which steps of pipeline to run. V:
                         	variant calling A: annotate F: filter eg. --steps AF
   --cluster {hpc,amazon}	[REQUIRED] Specify which cluster to run on. hpc: run

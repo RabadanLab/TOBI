@@ -29,8 +29,8 @@ def get_arg():
     parser.add_argument(
         '--config',
         help = """config file specifying command line arguments.
-            Arguments specified in the config file will overwrite command
-            line arguments."""                
+            Arguments specified in the command line overwrite config 
+            file arguments."""                
         )
     parser.add_argument(
         '--steps',
