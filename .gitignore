@@ -4,4 +4,10 @@ dlbcl_pipeline
 glioma
 **/.DS_Store
 .readme.txt.swp
+tmp
+v
 
+
+varCall_filtering/scripts/TOBIvcf.py
+
+*.pyc

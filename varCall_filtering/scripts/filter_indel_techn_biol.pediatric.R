@@ -23,11 +23,13 @@ main = function(filepath, outputpath) {
                     quote = "",
                     stringsAsFactors = FALSE)
   }
-  
-  # Correcting the indels position to be compatible with Cbio
+  print("original dim")
+  print(dim(mt))
+  print("Correcting the indels position to be compatible with Cbio")
   mt$pos = mt$pos + as.numeric(nchar(mt$ref) > nchar(mt$alt))
   
-  # Applying techn filter
+  print(dim(mt))
+  print("Applying techn filter")
   mt$qual = as.numeric(mt$qual)
   mt$dp4_3 = as.numeric(mt$dp4_3)
   mt$dp4_4 = as.numeric(mt$dp4_4)
@@ -35,6 +37,7 @@ main = function(filepath, outputpath) {
   mt$pv4_3 = as.numeric(mt$pv4_3)
   mt$pv4_4 = as.numeric(mt$pv4_4)
   
+  print(dim(mt))
   mt = mt[! (is.na(mt$pv4_1) | 
                is.na(mt$pv4_3) | 
                is.na(mt$pv4_4)), ]
@@ -44,22 +47,25 @@ main = function(filepath, outputpath) {
             mt$pv4_3 > 0.01 & 
             mt$pv4_4 > 0.01, ]
   
-  # Applying biol filter
+  print(dim(mt))
+  print("Applying biol filter")
   mt = mt[mt$common != "1" &
             mt$g5a == "." & 
             mt$g5 == "." &
-            mt$meganormal_id == "." &
+            mt$pednormal_id == "." &
             mt$effect != "." &
             mt$effect != "INTRAGENIC" &
             mt$effect != "EXON" &
             mt$effect != "SPLICE_SITE_REGION", ]
   
-  # To remove the src from old cases
+  print(dim(mt))
+  print("To remove the src from old cases")
   if ("src" %in% colnames(mt)) {
     mt$src = NULL
   }
   
-  # Removing redundant columns
+  print(dim(mt))
+  print("Removing redundant columns")
   if (length(grep("^X", colnames(mt)))) {
     mt = mt[, - grep("^X", colnames(mt))]
   }
@@ -78,4 +84,3 @@ if (!interactive()){
   outputpath = args[[2]]
   main(filepath, outputpath)
 }
-
