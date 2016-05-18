@@ -100,7 +100,7 @@ positional arguments:
 optional arguments:
   -h, --help            show this help message and exit
   --input INPUT         [REQUIRED] input file
-  --output OUTPUT       [REQUIRED] output file
+  --output OUTPUT       [REQUIRED] output file for PP, output folder for ML
   --somatic SOMATIC     [REQUIRED] formatted file containing somatic variants
   --log LOG             Optional argument to specify a log to pipe stdout and
                         stderr to
