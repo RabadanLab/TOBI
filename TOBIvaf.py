@@ -102,6 +102,13 @@ def get_arg():
         help="Specifies vcf type specically for TCGA filtering"
         )
     
+    #arguments for merge
+    parser.add_argument(
+        "--mergename", 
+        required=True, 
+        help="[REQUIRED - MERGE] Name for final merged file"
+        )
+    
     #print help if no arguments are given
     if len(sys.argv)==1:
         parser.print_help()
@@ -279,7 +286,7 @@ def merge_tsv(input_filenames,args):
         inputfile.close()
         if first:
             first = False
-            outputfile = open(args.output+"/final/"+case_name+".merged.tsv","a")
+            outputfile = open(args.output+"/final/"+args.mergename+".merged.tsv","a")
             outputfile.write(case_file[:case_file.rfind('\n')])
         #remove header from next files and merge into output
         else:
