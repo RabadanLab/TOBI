@@ -1,0 +1,22 @@
+[main]
+inputdir=scratch/data/TOBI_TEST
+output=scratch/tmp/tobi_tmp/output
+cluster=hpc
+steps=VAF
+
+[varcall]
+ref=GRCh37.71/GRCh37.71.nochr.fa
+
+[annotate]
+snpeff=shares/snpEff-v3.6
+#comma separated list of .vcf files for annotation. multiple lines are allowed provided they are indented
+annovcf=shares/ref/dbSNP/All_20150605.vcf,
+	shares/snpEff-v3.5/clinvar_20140303.vcf,
+	shares/ref/cosmic/CosmicCodingMuts.vcf,
+	germline/normal_controls/pedsnormal_no_TALL_GBM_EP_ALL.vcf,
+	shares/ref/vcfs/cbio.fix.sort.vcf
+dbnsfp=shares/snpEff-v3.6/data/dbNSFP2.4.txt.gz
+
+[filter]
+vcftype=default
+
