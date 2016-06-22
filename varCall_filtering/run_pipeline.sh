@@ -215,7 +215,14 @@ if [ $SGE_TASK_ID == 0 ]
 then
 	regionflag="";
 else
-	regionflag="-r $c";
+	check_ref=`grep -m 1 ">" ${ref}`
+	string="chr"
+	if [[ ${check_ref} == *"${string}"* ]]
+	then
+		regionflag="-r chr$c";
+	else
+	        regionflag="-r $c";
+	fi
 fi
 
 if [[ $stepstr == *B* ]]
