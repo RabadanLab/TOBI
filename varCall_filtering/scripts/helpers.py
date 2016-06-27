@@ -35,6 +35,20 @@ def vcf_concat_cmdgen(args,case_name):
         print(cmd)
     return cmd
 
+def snpeffarray_cmdgen(args,case_name,source_dir):
+    cmd = "qsub -V -b y -sync y -t 1-25 -cwd -l mem=10G,time=2:: -pe smp 2 " \
+        + "-e " + args.output + "/annotate/logs/"+ case_name +".snpeff.e " \
+        + "-o " + args.output+"/annotate/"+case_name+".o " \
+        + source_dir + "/varCall_filtering/parallelsnp.sh" \
+        + " -outputdir " + args.output \
+        + " -snpeff " + args.snpeff \
+        + " -case_name " + case_name \
+        + " -input " + args.output +"/annotate"
+    if args.debug:
+        print('[Annotating with snpEff]')
+        print(cmd)
+    return cmd
+
 def snpeff_cmdgen(args,case_name):
     #generate command for snpeff 
     cmd = "qsub -V -b y -sync y -N " + case_name \
