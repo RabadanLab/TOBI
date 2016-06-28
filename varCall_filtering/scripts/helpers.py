@@ -3,6 +3,7 @@ import os
 import re
 import sys
 import subprocess
+from threading import Thread
 
 def mpileup_cmdgen(args,case_name,source_dir):
     #generate command for mpileup
@@ -15,7 +16,7 @@ def mpileup_cmdgen(args,case_name,source_dir):
         + source_dir + "/varCall_filtering/parallel_pileup.sh" \
         + " --bam " + args.inputdir + "/" + case_name + ".bam"\
         + " --ref " + args.ref \
-        + " --outputdir " + args.output + "/vcfcall"
+        + " --outputdir " + args.output + "/vcfcall/"+ case_name
     if(args.debug):
         print('[Performing mpileup]')
         print(cmd)
@@ -25,7 +26,7 @@ def vcf_concat_cmdgen(args,case_name):
     #generate command for vcf-concat
     vcflist = []
     for i in range(args.start,args.end+1):
-        vcfname = args.output + "/vcfcall/raw_" + str(i) + ".vcf"
+        vcfname = args.output + "/vcfcall/"+case_name+"/raw_" + str(i) + ".vcf"
         vcflist.append(vcfname)
     vcfstr = " ".join(vcflist)
     cmd = "vcf-concat "+ vcfstr + " > " \
@@ -121,7 +122,7 @@ def get_filenames(inputdir,extension):
                 input_filenames.append(filename[:-4])
         break
     if len(input_filenames) == 0:
-        sys.exit("[ERROR] no files found in input directory")
+        sys.exit("[ERROR] out found in input directory")
     return input_filenames
 
 def purge(directory, pattern):
@@ -193,3 +194,19 @@ def check_anno_args(args):
 def check_filt_args(args):
     if args.vcftype == None:
         sys.exit("[ERROR]: Missing required '--vcftype' argument.")
+        
+def check_merge_args(args):
+    if args.mergename == None:
+        sys.exit("[ERROR]: Missing required '--mergename' argument.")
+        
+def multithread(function,arguments,input_filenames):
+    threads = []
+    for case_name in input_filenames:
+        t = Thread(target = function, args=(case_name,arguments))
+        threads.append(t)
+    #set inputdir as vcf_call's output
+    for i in threads:
+        i.start();
+    for i in threads:
+        i.join();
+

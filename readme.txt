@@ -18,7 +18,17 @@
 
 TOBI: Tumor Only Boosting Identification of Driver Mutations
 
-ADD DESC HERE ~
+Tumor-Only Boosting Identification (TOBI) is a framework for unified germline and somatic
+analysis analysis using largely tumor-only samples. TOBI uses gradient booosting to learn 
+features of confirmed somatic variants from a small training set of tumor-normal sampless, 
+then generates a classification model that identifies variants with somatic characteristics 
+in tumor-only samples.
+ 
+First, WES files from tumor samples undergo variant calling, annotation, and filtering for 
+quality. TOBI then merges variants across multiple samples. In pre-processing, TOBI labels 
+variants from the training set as somatic (“som”) or non-somatic (“non_som"). Finally, in 
+the machine learning step, TOBI generates and applies a somatic classifier. 
+
 
 Ver. 1.2: April 12, 2016
 cjmadubata & tchu modified from Alireza Roshan Ghias's code 
