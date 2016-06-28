@@ -46,54 +46,52 @@ def snpeffarray_cmdgen(args,case_name,source_dir):
         + " -case_name " + case_name \
         + " -input " + args.output +"/annotate"
     if args.debug:
-        print('[Annotating with snpEff]')
+        print('[Annotating ' + case_name + ' with snpEff]')
         print(cmd)
     return cmd
 
-def snpeff_cmdgen(args,case_name):
-    #generate command for snpeff 
-    cmd = "qsub -V -b y -sync y -N " + case_name \
-        + " -l mem=10G,time=2:: -pe smp 2 " \
+def snpsiftarray_cmdgen(args,case_name,vcf,source_dir):
+    cmd = "qsub -V -b y -sync y -t 1-25 -cwd -l mem=10G,time=2:: -pe smp 2 " \
         + "-e " + args.output + "/annotate/logs/"+ case_name +".snpeff.e " \
-        + "-o " + args.output+"/annotate/"+case_name+".eff.vcf " \
-        + "java -Xmx6G " \
-        + "-jar "+ args.snpeff+"/snpEff.jar -c "+ args.snpeff+"/snpEff.config" \
-        + " GRCh37.71 " \
-        + "-noStats -v -lof -canon " \
-        + "-no-downstream -no-intergenic -no-intron -no-upstream -no-utr " \
-        + args.inputdir+"/"+case_name+".vcf"\
-        + " > " + args.output + "/annotate/logs/"+ case_name +".snpeff.o"
-    if(args.debug):
-        print('[Annotating with snpEff]')
+        + "-o " + args.output+"/annotate/"+case_name+".o " \
+        + source_dir + "/varCall_filtering/parallelsift.sh" \
+        + " -outputdir " + args.output \
+        + " -snpeff " + args.snpeff \
+        + " -case_name " + case_name \
+        + " -input " + args.output +"/annotate" \
+        + " -vcf " + vcf
+    if args.debug:
+        print('[Annotating ' + case_name + ' with snpSift]')
         print(cmd)
     return cmd
 
-def snpsift_cmdgen(args,case_name,vcf):
-    #generate command for snpsift annotate
-    cmd = "qsub -V -b y -sync y -N " + case_name \
-        + " -l mem=10G,time=2:: -pe smp 2 " \
+def snpdbnsfparray_cmdgen(args,case_name,dbnsfp,source_dir,dbnsfp_header):
+    cmd = "qsub -V -b y -sync y -t 1-25 -cwd -l mem=10G,time=2:: -pe smp 2 " \
         + "-e " + args.output + "/annotate/logs/"+ case_name +".snpeff.e " \
-        + "-o " + args.output+"/annotate/"+case_name+".eff.vcf.tmp " \
-        + "java -Xmx6G " \
-        + "-jar "+ args.snpeff+"/SnpSift.jar annotate -v " \
-        + vcf + " " + args.output+"/annotate/"+case_name+".eff.vcf " \
-        + " > " + args.output + "/annotate/logs/"+ case_name +".snpeff.o"
-    if(args.debug):
+        + "-o " + args.output+"/annotate/"+case_name+".o " \
+        + source_dir + "/varCall_filtering/paralleldbnsfp.sh" \
+        + " -outputdir " + args.output \
+        + " -snpeff " + args.snpeff \
+        + " -case_name " + case_name \
+        + " -input " + args.output +"/annotate" \
+        + " -dbnsfp " + dbnsfp \
+        + " -header " + dbnsfp_header
+    if args.debug:
+        print('[Annotating ' + case_name + ' with dbnsfp]')
         print(cmd)
     return cmd
 
-def snpdbnsfp_cmdgen(args,case_name,dbnsfp,header):
-    #generate command for snpsift dbnsfp
-    cmd = "qsub -V -b y -sync y -N " + case_name \
-        + " -l mem=10G,time=2:: -pe smp 2 " \
-        + "-e " + args.output + "/annotate/logs/"+ case_name +".snpeff.e " \
-        + "-o " + args.output+"/annotate/"+case_name+".eff.all.vcf " \
-        + "java -Xmx6G " \
-        + "-jar "+ args.snpeff+"/SnpSift.jar dbnsfp " \
-        + dbnsfp + " -v -f " + header + " " \
-        + args.output+"/annotate/"+case_name+".eff.vcf " \
-        + " > " + args.output + "/annotate/logs/"+ case_name +".snpeff.o"
-    if(args.debug):
+def vcf_snp_concat_cmdgen(args,case_name):
+    #generate command for vcf-concat
+    vcflist = []
+    for i in range(1,23) + ['X', 'Y', 'MT']:
+        vcfname = args.output + "/annotate/"+case_name+ str(i) + ".eff.vcf"
+        vcflist.append(vcfname)
+    vcfstr = " ".join(vcflist)
+    cmd = "vcf-concat "+ vcfstr + " > " \
+        + args.output + "/annotate/" + case_name + ".eff.all.vcf"
+    if args.debug:
+        print('[Concatenating ' + case_name + ' vcf files]')
         print(cmd)
     return cmd
 
@@ -102,6 +100,7 @@ def oneEff_cmdgen(args,case_name,source_dir):
         + source_dir+"/varCall_filtering/scripts/vcfEffOnePerLine.pl > " \
         + args.output +"/annotate/"+case_name+ ".vcf"
     if(args.debug):
+        print('[Splitting vcf effects to one per line]')
         print(cmd)
     return cmd
 
@@ -210,3 +209,49 @@ def multithread(function,arguments,input_filenames):
     for i in threads:
         i.join();
 
+def snpeff_cmdgen(args,case_name):
+    #generate command for snpeff 
+    cmd = "qsub -V -b y -sync y -N " + case_name \
+        + " -l mem=10G,time=2:: -pe smp 2 " \
+        + "-e " + args.output + "/annotate/logs/"+ case_name +".snpeff.e " \
+        + "-o " + args.output+"/annotate/"+case_name+".eff.vcf " \
+        + "java -Xmx6G " \
+        + "-jar "+ args.snpeff+"/snpEff.jar -c "+ args.snpeff+"/snpEff.config" \
+        + " GRCh37.71 " \
+        + "-noStats -v -lof -canon " \
+        + "-no-downstream -no-intergenic -no-intron -no-upstream -no-utr " \
+        + args.inputdir+"/"+case_name+".vcf"\
+        + " > " + args.output + "/annotate/logs/"+ case_name +".snpeff.o"
+    if(args.debug):
+        print('[Annotating with snpEff]')
+        print(cmd)
+    return cmd
+
+def snpsift_cmdgen(args,case_name,vcf):
+    #generate command for snpsift annotate
+    cmd = "qsub -V -b y -sync y -N " + case_name \
+        + " -l mem=10G,time=2:: -pe smp 2 " \
+        + "-e " + args.output + "/annotate/logs/"+ case_name +".snpeff.e " \
+        + "-o " + args.output+"/annotate/"+case_name+".eff.vcf.tmp " \
+        + "java -Xmx6G " \
+        + "-jar "+ args.snpeff+"/SnpSift.jar annotate -v " \
+        + vcf + " " + args.output+"/annotate/"+case_name+".eff.vcf " \
+        + " > " + args.output + "/annotate/logs/"+ case_name +".snpeff.o"
+    if(args.debug):
+        print(cmd)
+    return cmd
+
+def snpdbnsfp_cmdgen(args,case_name,dbnsfp,header):
+    #generate command for snpsift dbnsfp
+    cmd = "qsub -V -b y -sync y -N " + case_name \
+        + " -l mem=10G,time=2:: -pe smp 2 " \
+        + "-e " + args.output + "/annotate/logs/"+ case_name +".snpeff.e " \
+        + "-o " + args.output+"/annotate/"+case_name+".eff.all.vcf " \
+        + "java -Xmx6G " \
+        + "-jar "+ args.snpeff+"/SnpSift.jar dbnsfp " \
+        + dbnsfp + " -v -f " + header + " " \
+        + args.output+"/annotate/"+case_name+".eff.vcf " \
+        + " > " + args.output + "/annotate/logs/"+ case_name +".snpeff.o"
+    if(args.debug):
+        print(cmd)
+    return cmd

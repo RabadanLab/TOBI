@@ -18,6 +18,14 @@ do
 		shift; 
 		input=$1; 
 		shift
+	elif [ "$1" == "-dbnsfp" ]; then
+		shift; 
+		dbnsfp=$1; 
+		shift
+	elif [ "$1" == "-header" ]; then
+		shift; 
+		header=$1; 
+		shift
 	else	# if unknown argument, just shift
 		shift
 	fi
@@ -52,13 +60,16 @@ case $SGE_TASK_ID in
 	25) c="MT";;
 esac
 
+
 echo "[region] "$c
 
-java -Xmx6G -jar ${snpeff}/snpEff.jar -c  ${snpeff}/snpEff.config \
-	GRCh37.71 -noStats -v -lof -canon -no-downstream -no-intergenic -no-intron -no-upstream -no-utr \
-	${input}/${case_name}.${c}.recode.vcf \
-	> ${outputdir}/annotate/${case_name}${c}.eff.vcf	
+java -Xmx6G -jar ${snpeff}/SnpSift.jar dbnsfp ${dbnsfp} \
+	-v -f ${header} ${outputdir}/annotate/${case_name}${c}.eff.vcf \
+	> ${outputdir}/annotate/${case_name}${c}.eff.vcf.tmp
 	
-rm ${outputdir}/annotate/${case_name}.${c}.recode.vcf
+rm ${outputdir}/annotate/${case_name}${c}.eff.vcf
 
-rm ${outputdir}/annotate/${case_name}.${c}.log
+mv ${outputdir}/annotate/${case_name}${c}.eff.vcf.tmp ${outputdir}/annotate/${case_name}${c}.eff.vcf
+
+
+

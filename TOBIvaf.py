@@ -212,19 +212,23 @@ def annotate(case_name, args):
         helpers.runShellCmd(helpers.snpeffarray_cmdgen(args,case_name,source_dir)) 
         #snpSIFT annotate for each vcf provided
         for vcf in annovcf:
-            helpers.runShellCmd(helpers.snpsift_cmdgen(args,case_name,vcf))
+            helpers.runShellCmd(helpers.snpsiftarray_cmdgen(args,case_name,vcf,source_dir))
             #hacky way to create & replace temp file. fix this later
-            os.remove(args.output+"/annotate/"+case_name+".eff.vcf")
-            os.rename(args.output+"/annotate/"+case_name+".eff.vcf.tmp",
-                      args.output+"/annotate/"+case_name+".eff.vcf"
-                      )
+            #os.remove(args.output+"/annotate/"+case_name+".eff.vcf")
+            #os.rename(args.output+"/annotate/"+case_name+".eff.vcf.tmp",
+            #          args.output+"/annotate/"+case_name+".eff.vcf"
+            #          )
         #snpSIFT dbnsfp
         helpers.runShellCmd(
-            helpers.snpdbnsfp_cmdgen(args,case_name,args.dbnsfp,dbnsfp_header)
+            helpers.snpdbnsfparray_cmdgen(args,case_name,args.dbnsfp,source_dir,dbnsfp_header)
             )
-        if args.cleanup:
-            os.remove(args.output+"/annotate/"+case_name+".eff.vcf")
-            
+        #if args.cleanup:
+            #os.remove(args.output+"/annotate/"+case_name+".eff.vcf")
+        
+        helpers.runShellCmd(
+            helpers.vcf_snp_concat_cmdgen(args,case_name)
+            )
+        
         #split effects into one effect per line
         helpers.runShellCmd(helpers.oneEff_cmdgen(args,case_name,source_dir))
         
