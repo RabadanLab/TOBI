@@ -38,7 +38,8 @@ def vcf_concat_cmdgen(args,case_name):
 
 def snpeffarray_cmdgen(args,case_name,source_dir):
     cmd = "qsub -V -b y -sync y -t 1-25 -cwd -l mem=10G,time=2:: -pe smp 2 " \
-        + "-e " + args.output + "/annotate/logs/"+ case_name +".snpeff.e " \
+        + "-N " + case_name \
+        + " -e " + args.output + "/annotate/logs/ " \
         + "-o " + args.output+"/annotate/"+case_name+".o " \
         + source_dir + "/varCall_filtering/parallelsnp.sh" \
         + " -outputdir " + args.output \
@@ -52,7 +53,8 @@ def snpeffarray_cmdgen(args,case_name,source_dir):
 
 def snpsiftarray_cmdgen(args,case_name,vcf,source_dir):
     cmd = "qsub -V -b y -sync y -t 1-25 -cwd -l mem=10G,time=2:: -pe smp 2 " \
-        + "-e " + args.output + "/annotate/logs/"+ case_name +".snpeff.e " \
+        + "-N " + case_name \
+        + " -e " + args.output + "/annotate/logs/ " \
         + "-o " + args.output+"/annotate/"+case_name+".o " \
         + source_dir + "/varCall_filtering/parallelsift.sh" \
         + " -outputdir " + args.output \
@@ -66,8 +68,9 @@ def snpsiftarray_cmdgen(args,case_name,vcf,source_dir):
     return cmd
 
 def snpdbnsfparray_cmdgen(args,case_name,dbnsfp,source_dir,dbnsfp_header):
-    cmd = "qsub -V -b y -sync y -t 1-25 -cwd -l mem=10G,time=2:: -pe smp 2 " \
-        + "-e " + args.output + "/annotate/logs/"+ case_name +".snpeff.e " \
+    cmd = "qsub -V -b y -sync y -t 1-25 -cwd -l mem=10G,time=4:: -pe smp 2 " \
+        + "-N " + case_name \
+        + " -e " + args.output + "/annotate/logs/ " \
         + "-o " + args.output+"/annotate/"+case_name+".o " \
         + source_dir + "/varCall_filtering/paralleldbnsfp.sh" \
         + " -outputdir " + args.output \
