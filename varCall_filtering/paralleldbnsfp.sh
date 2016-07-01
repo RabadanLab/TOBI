@@ -64,12 +64,12 @@ esac
 echo "[region] "$c
 
 java -Xmx6G -jar ${snpeff}/SnpSift.jar dbnsfp ${dbnsfp} \
-	-v -f ${header} ${outputdir}/annotate/${case_name}${c}.eff.vcf \
-	> ${outputdir}/annotate/${case_name}${c}.eff.vcf.tmp
+-v -f ${header} ${outputdir}/annotate/${case_name}.${c}.eff.vcf \
+	> ${outputdir}/annotate/${case_name}.${c}.eff.vcf.tmp
 	
-rm ${outputdir}/annotate/${case_name}${c}.eff.vcf
+rm ${outputdir}/annotate/${case_name}.${c}.eff.vcf
 
-mv ${outputdir}/annotate/${case_name}${c}.eff.vcf.tmp ${outputdir}/annotate/${case_name}${c}.eff.vcf
+mv ${outputdir}/annotate/${case_name}.${c}.eff.vcf.tmp ${outputdir}/annotate/${case_name}.${c}.eff.vcf
 
 
 

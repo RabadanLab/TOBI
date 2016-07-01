@@ -57,7 +57,7 @@ echo "[region] "$c
 java -Xmx6G -jar ${snpeff}/snpEff.jar -c  ${snpeff}/snpEff.config \
 	GRCh37.71 -noStats -v -lof -canon -no-downstream -no-intergenic -no-intron -no-upstream -no-utr \
 	${input}/${case_name}.${c}.recode.vcf \
-	> ${outputdir}/annotate/${case_name}${c}.eff.vcf	
+	> ${outputdir}/annotate/${case_name}.${c}.eff.vcf	
 	
 rm ${outputdir}/annotate/${case_name}.${c}.recode.vcf
 

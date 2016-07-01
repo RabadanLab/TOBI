@@ -88,7 +88,7 @@ def vcf_snp_concat_cmdgen(args,case_name):
     #generate command for vcf-concat
     vcflist = []
     for i in range(1,23) + ['X', 'Y', 'MT']:
-        vcfname = args.output + "/annotate/"+case_name+ str(i) + ".eff.vcf"
+        vcfname = args.output + "/annotate/"+case_name+"."+ str(i) + ".eff.vcf"
         vcflist.append(vcfname)
     vcfstr = " ".join(vcflist)
     cmd = "vcf-concat "+ vcfstr + " > " \

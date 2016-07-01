@@ -229,16 +229,14 @@ def annotate(case_name, args):
         #if args.cleanup:
             #os.remove(args.output+"/annotate/"+case_name+".eff.vcf")
         
-        helpers.runShellCmd(
-            helpers.vcf_snp_concat_cmdgen(args,case_name)
-            )
+        helpers.runShellCmd(helpers.vcf_snp_concat_cmdgen(args,case_name))
         
         #split effects into one effect per line
         helpers.runShellCmd(helpers.oneEff_cmdgen(args,case_name,source_dir))
         
         if args.cleanup:
             os.remove(args.output+"/annotate/"+case_name+".eff.all.vcf")
-            os.remove(args.output+"/annotate/"+case_name+".eff.vcf")
+            helpers.purge(args.output+"/annotate/",case_name+".*.eff.vcf")
 
 def filter_vcf(case_name,args):
     if args.debug:
