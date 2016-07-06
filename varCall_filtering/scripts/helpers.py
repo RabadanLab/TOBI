@@ -13,7 +13,7 @@ def mpileup_cmdgen(args,case_name,source_dir):
         + " -e " + args.output + "/vcfcall/logs/"+ case_name +".vcfcall.e " \
         + "-o " + args.output + "/vcfcall/logs/"+ case_name +".vcfcall.o " \
         + "-cwd -l mem=10G,time=1:: " \
-        + source_dir + "/varCall_filtering/parallel_pileup.sh" \
+        + source_dir + "/parallel_pileup.sh" \
         + " --bam " + args.inputdir + "/" + case_name + ".bam"\
         + " --ref " + args.ref \
         + " --outputdir " + args.output + "/vcfcall/"+ case_name
@@ -41,7 +41,7 @@ def snpeffarray_cmdgen(args,case_name,source_dir):
         + "-N " + case_name \
         + " -e " + args.output + "/annotate/logs/ " \
         + "-o " + args.output+"/annotate/"+case_name+".o " \
-        + source_dir + "/varCall_filtering/parallelsnp.sh" \
+        + source_dir + "/parallelsnp.sh" \
         + " -outputdir " + args.output \
         + " -snpeff " + args.snpeff \
         + " -case_name " + case_name \
@@ -56,7 +56,7 @@ def snpsiftarray_cmdgen(args,case_name,vcf,source_dir):
         + "-N " + case_name \
         + " -e " + args.output + "/annotate/logs/ " \
         + "-o " + args.output+"/annotate/"+case_name+".o " \
-        + source_dir + "/varCall_filtering/parallelsift.sh" \
+        + source_dir + "/parallelsift.sh" \
         + " -outputdir " + args.output \
         + " -snpeff " + args.snpeff \
         + " -case_name " + case_name \
@@ -72,7 +72,7 @@ def snpdbnsfparray_cmdgen(args,case_name,dbnsfp,source_dir,dbnsfp_header):
         + "-N " + case_name \
         + " -e " + args.output + "/annotate/logs/ " \
         + "-o " + args.output+"/annotate/"+case_name+".o " \
-        + source_dir + "/varCall_filtering/paralleldbnsfp.sh" \
+        + source_dir + "/paralleldbnsfp.sh" \
         + " -outputdir " + args.output \
         + " -snpeff " + args.snpeff \
         + " -case_name " + case_name \
@@ -100,7 +100,7 @@ def vcf_snp_concat_cmdgen(args,case_name):
 
 def oneEff_cmdgen(args,case_name,source_dir):
     cmd = "cat "+ args.output + "/annotate/" + case_name + ".eff.all.vcf | " \
-        + source_dir+"/varCall_filtering/scripts/vcfEffOnePerLine.pl > " \
+        + source_dir+"/vcfEffOnePerLine.pl > " \
         + args.output +"/annotate/"+case_name+ ".vcf"
     if(args.debug):
         print('[Splitting vcf effects to one per line]')
@@ -124,7 +124,7 @@ def get_filenames(inputdir,extension):
                 input_filenames.append(filename[:-4])
         break
     if len(input_filenames) == 0:
-        sys.exit("[ERROR] out found in input directory")
+        sys.exit("[ERROR] no files found in input directory")
     return input_filenames
 
 def purge(directory, pattern):
@@ -168,6 +168,7 @@ def runShellCmd(cmd):
         cmd, 
         shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
         ) 
+    print cmd
     if proc.wait() != 0:
         sys.exit("[ERROR] process '" + cmd + "' terminated with non-zero exit code")
 
