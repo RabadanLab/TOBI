@@ -114,14 +114,15 @@ fi
 echo ${bam}
 for j in ${bam} 
 do
-	# Get the j th bam file
-	# Adapt this part accordingly for your bam file and case names
-	BAM_file=$(cat ${list_file} | sed -n ${j}p) 
-	case_name=`echo ${BAM_file} | xargs -I _args basename _args .bam` 
-	
-	mkdir -p ${main_outputdir}/${case_name}
-	mkdir -p ${main_outputdir}/${case_name}/logs
-	mkdir -p ${main_outputdir}/${case_name}/output_folder
+        # Get the j th bam file
+        # Adapt this part accordingly for your bam file and case names
+        case_name=$(cat ${list_file} | sed -n ${j}p)
+        BAM_file="${bamdir}/${case_name}.bam"
+#       case_name=`echo ${BAM_file} | xargs -I _args basename _args .bam`
+
+        mkdir -p ${main_outputdir}/${case_name}
+        mkdir -p ${main_outputdir}/${case_name}/logs
+        mkdir -p ${main_outputdir}/${case_name}/output_folder
 	
 	# This qsubs all chromosome parts. Change the numbers after -t, if needed
 	if [[ ${cluster} == hpc ]] 
