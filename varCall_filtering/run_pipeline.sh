@@ -228,7 +228,8 @@ fi
 if [[ $stepstr == *B* ]]
 then
 	echo "[STEP1] pileup>bcftools"
-	samtools=/ifs/home/c2b2/rr_lab/shares/bin/samtools-0.1.19/samtools	
+	#samtools=/ifs/home/c2b2/rr_lab/shares/bin/samtools-0.1.19/samtools	
+	echo $samtools
 	mkdir -p ${outputdir}/vcffiles_${SGE_TASK_ID}
 	
 	# For one sample only
