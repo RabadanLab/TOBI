@@ -71,7 +71,7 @@ def snpdbnsfparray_cmdgen(args,case_name,dbnsfp,source_dir,dbnsfp_header):
     cmd = "qsub -V -b y -sync y -t 1-25 -cwd -l mem=10G,time=4:: -pe smp 2 " \
         + "-N " + case_name \
         + " -e " + args.output + "/annotate/logs/ " \
-        + "-o " + args.output+"/annotate/"+case_name+".o " \
+        + "-o " + args.output+"/annotate/logs/"+case_name+".o " \
         + source_dir + "/paralleldbnsfp.sh" \
         + " -outputdir " + args.output \
         + " -snpeff " + args.snpeff \
@@ -104,6 +104,23 @@ def oneEff_cmdgen(args,case_name,source_dir):
         + args.output +"/annotate/"+case_name+ ".vcf"
     if(args.debug):
         print('[Splitting vcf effects to one per line]')
+        print(cmd)
+    return cmd
+
+def filterarray_cmdgen(args,case_name,source_dir,whichscript):
+    cmd = "qsub -V -b y -sync y -t 1-25 -cwd -l mem=10G,time=4:: -pe smp 2 " \
+        + "-N " + case_name \
+        + " -e " + args.output + "/filter/logs/ " \
+        + "-o " + args.output+"/filter/logs/ " \
+        + source_dir + "/parallelfilter.sh" \
+        + " -outputdir " + args.output \
+        + " -case_name " + case_name \
+        + " -source_dir " + source_dir \
+        + " -whichscript " + whichscript \
+        + " -inputdir " + args.output +"/filter" 
+        
+    if args.debug:
+        print('[Filtering ' + case_name + ']')
         print(cmd)
     return cmd
 

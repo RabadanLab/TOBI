@@ -1,10 +1,8 @@
 #!/usr/bin/env python
 import argparse
-import subprocess
-import vcf2report as vcf2report
-import parse_tsv as parse_tsv
 import sys
 import os
+import helpers as helpers
 
 def get_arg():
 #arguments for varcall
@@ -54,23 +52,15 @@ def main():
     if args.debug:
         print("[Preprocessing file]")
     source_dir = os.path.dirname(os.path.realpath(__file__))
-    #read in file
-    inputfile = open(args.inputdir+"/"+case_name+".vcf","r")
-    case_file = inputfile.read()
-    inputfile.close()
-    #find GERP++ and replace with GERP
-    case_file = case_file.replace('GERP++','GERP')
-    #vcf2report
-    case_file = vcf2report.convert(case_file)
-    #parse_tsv case_name
-    case_file = parse_tsv.convert(case_file,case_name)
-    #get rid of # and ' characters
-    case_file = case_file.replace("#","")
-    case_file = case_file.replace("'","")
-    #write to new file
-    outputfile = open(args.output+"/filter/"+case_name+"_not_filt.tsv","w")
-    outputfile.write(case_file)
-    outputfile.close()
+    if args.debug:
+                print("[Splitting vcf file by chromosome]")
+    for chrom in range(1,23) + ['X', 'Y', 'MT']:
+        if args.debug:
+            print("[Chromosome " + str(chrom) + "]")
+        helpers.runShellCmd("vcftools --recode --recode-INFO-all --vcf "
+            + args.inputdir + "/" + case_name +".vcf" 
+            +" --out " + args.output +"/filter/"+ case_name +"."+ str(chrom) +" --chr " + str(chrom)) 
+    
     #apply R script filters
     if args.vcftype == "default":
         script = "/filter_indel_techn_biol.pediatric.R "
@@ -79,35 +69,27 @@ def main():
     else:
         sys.exit("[ERROR]: Invalid '--vcftype' argument: " + args.vcftype)
     
-    cmd = "qsub -V -b y -sync y -N " + case_name \
-        + " -l mem=10G,time=2:: -pe smp 2 " \
-        + "-e " + args.output + "/filter/logs/"+ case_name +".e " \
-        + "-o " + args.output+"/filter/logs/"+case_name+".o " \
-        +"Rscript " + source_dir + script \
-        + args.output+"/filter/"+case_name+"_not_filt.tsv " \
-        + args.output+"/filter/"+case_name+"_filt_indel_techn_biol.tsv" 
-    if args.debug:
-        print(cmd)        
-    proc = subprocess.Popen(
-        cmd,
-        shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-        )
-    if args.debug:
-        while True:
-            nextline = proc.stdout.readline()
-            if nextline == '' and proc.poll() != None:
-                break
-            sys.stdout.write(nextline)
-            sys.stdout.flush()
-        while True:
-            nextline = proc.stderr.readline()
-            if nextline == '' and proc.poll() != None:
-                break
-            sys.stderr.write(nextline)
-            sys.stderr.flush()
-    proc.wait()
-    if args.cleanup:
-        os.remove(args.output+"/filter/"+case_name+"_not_filt.tsv")
+    helpers.runShellCmd(helpers.filterarray_cmdgen(args, case_name, source_dir, script))
+    
+    first = True
+    for chrom in range(1,23) + ['X', 'Y', 'MT']:
+        #save first file into output
+        inputfile = open(args.output+"/filter/"+case_name+"."+str(chrom)+"_filt_indel_techn_biol.tsv","r")
+        case_file = inputfile.read()
+        inputfile.close()
+        if first:
+            first = False
+            outputfile = open(args.output+"/filter/"+case_name+"_filt_indel_techn_biol.tsv","a")
+            outputfile.write(case_file[:case_file.rfind('\n')])
+        #remove header from next files and merge into output
+        else:
+            outputfile.write(case_file[case_file.find('\n'):case_file.rfind('\n')])
+        if args.cleanup:
+            os.remove(args.output+"/filter/"+case_name+"."+str(chrom)+"_filt_indel_techn_biol.tsv")
+            os.remove(args.output+"/filter/"+case_name+"."+str(chrom)+".recode_not_filt.tsv")
+            os.remove(args.output+"/filter/"+case_name+"."+str(chrom)+".recode.vcf")
+            os.remove(args.output+"/filter/"+case_name+"."+str(chrom)+".log")
+    outputfile.close()
         
 if __name__ == "__main__":
     main()
