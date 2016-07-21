@@ -58,36 +58,54 @@ inputs at each step:
 		cannot start with a number. 
 	
 usage: TOBIvaf.py [-h] [--inputdir INPUTDIR] [--output OUTPUT]
-                   [--config CONFIG] [--steps STEPS] [--cluster {hpc,amazon}]
-                   [--debug] [--cleanup] [--ref REF] [--start START]
-                   [--end END] [--snpeff SNPEFF] [--annovcf ANNOVCF]
-                   [--dbnsfp DBNSFP] [--vcftype {default,TCGA}]
-                   
-TOBIv1.2: Tumor Only Boosting Identification of Driver Mutations. All arguments
-can be specified in a config file. (See included varCall.config file as an
-example). 
+                  [--config CONFIG] [--steps STEPS] [--cluster {hpc,amazon}]
+                  [--debug] [--cleanup] [--ref REF] [--start START]
+                  [--end END] [--snpeff SNPEFF] [--annovcf ANNOVCF]
+                  [--dbnsfp DBNSFP] [--vcftype {default,TCGA}]
+                  [--mergename MERGENAME]
 
-optional arguments:
-  -h, --help            	show this help message and exit
-  --inputdir INPUTDIR   	[REQUIRED] directory for bam/vcf files.
-  --output OUTPUT       	[REQUIRED] output directory.
-  --config CONFIG       	Config file specifying command line arguments.
-            				Arguments specified in the command line overwrite config 
-            				file arguments.
-  --steps STEPS         	[REQUIRED] Specify which steps of pipeline to run. V:
-                        	variant calling A: annotate F: filter eg. --steps AF
-  --cluster {hpc,amazon}	[REQUIRED] Specify which cluster to run on. hpc: run
-                        	on an SGE hpc cluster amazon: CURRENTLY UNIMPLEMENTED
-  --debug               	Debug/verbose flag. Default: False
-  --cleanup             	Delete temporary debug files. Default True
-  --ref REF             	[REQUIRED - VCF] Reference genome file.
-  --start START         	Start index used for testing. Default 1
-  --end END             	End index used for testing. Default 74
-  --snpeff SNPEFF       	[REQUIRED - ANNOTATE] Directory where snpEff is
-  --annovcf ANNOVCF     	[REQUIRED - ANNOTATE] A comma separated list of .vcf
-                        	files to annotate with.
-  --dbnsfp DBNSFP       	[REQUIRED - ANNOTATE] Path to dbNSFP file
-  --vcftype {default,TCGA}	Specifies vcf type specically for TCGA filtering
+TOBIv1.2: Tumor Only Boosting Identification of Driver Mutations All arguments
+can be specified in a config file. (See included varCall.config file as an
+example).
+
+Arguments:
+	General Arguments:
+	
+	  -h, --help            show this help message and exit
+	  --inputdir INPUTDIR   [REQUIRED] directory for bam/vcf files.
+	  --output OUTPUT       [REQUIRED] output directory.
+	  --config CONFIG       config file specifying command line arguments.
+	                        Arguments specified in the command line overwrite
+	                        config file arguments.
+	  --steps STEPS         [REQUIRED] Specify which steps of pipeline to run. V:
+	                        variant calling A: annotate F: filter M: merge eg.
+	                        --steps AF
+	  --cluster {hpc,amazon}
+	                        [REQUIRED] Specify which cluster to run on. hpc: run
+	                        on an SGE hpc cluster amazon: CURRENTLY UNIMPLEMENTED
+	  --debug               Debug/verbose flag. Default: False
+	  --cleanup             Delete temporary debug files. Default True
+	VCF Step Arguments:
+	
+	  --ref REF             [REQUIRED - VCF] Reference genome file.
+	  --start START         Start index used for testing. Will not work in config.
+	                        Default 1
+	  --end END             End index used for testing. Will not work in config.
+	                        Default 74
+	Annotation Step Arguments:
+	
+	  --snpeff SNPEFF       [REQUIRED - ANNOTATE] Directory where snpEff is
+	  --annovcf ANNOVCF     [REQUIRED - ANNOTATE] A comma separated list of .vcf
+	                        files to annotate with.
+	  --dbnsfp DBNSFP       [REQUIRED - ANNOTATE] Path to dbNSFP file
+	Filter Step Arguments:
+	
+	  --vcftype {default,TCGA}
+	                        Specifies vcf type specically for TCGA filtering
+	Merge Step Arguments:  
+	
+	  --mergename MERGENAME
+	                        [REQUIRED - MERGE] Name for final merged file
 
 #########################################################################################
 ### machine_learning ###
