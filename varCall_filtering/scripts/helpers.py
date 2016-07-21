@@ -210,6 +210,8 @@ def check_anno_args(args):
         sys.exit("[ERROR]: Missing required '--snpeff' argument.")
     if args.dbnsfp == None:
         sys.exit("[ERROR]: Missing required '--dbnsfp' argument.")
+    if args.annovcf == None:
+        sys.exit("[ERROR]: Missing required '--annovcf' argument.")
 
 def check_filt_args(args):
     if args.vcftype == None:
