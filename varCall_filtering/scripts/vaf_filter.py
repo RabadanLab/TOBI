@@ -52,15 +52,8 @@ def main():
     if args.debug:
         print("[Preprocessing file]")
     source_dir = os.path.dirname(os.path.realpath(__file__))
-    if args.debug:
-                print("[Splitting vcf file by chromosome]")
-    for chrom in range(1,23) + ['X', 'Y', 'MT']:
-        if args.debug:
-            print("[Chromosome " + str(chrom) + "]")
-        helpers.runShellCmd("vcftools --recode --recode-INFO-all --vcf "
-            + args.inputdir + "/" + case_name +".vcf" 
-            +" --out " + args.output +"/filter/"+ case_name +"."+ str(chrom) +" --chr " + str(chrom)) 
     
+    helpers.split_vcf(args,case_name,"filter")
     #apply R script filters
     if args.vcftype == "default":
         script = "/filter_indel_techn_biol.pediatric.R "
@@ -72,7 +65,7 @@ def main():
     helpers.runShellCmd(helpers.filterarray_cmdgen(args, case_name, source_dir, script))
     
     first = True
-    for chrom in range(1,23) + ['X', 'Y', 'MT']:
+    for chrom in range(1,23) + ['MISC']:
         #save first file into output
         inputfile = open(args.output+"/filter/"+case_name+"."+str(chrom)+"_filt_indel_techn_biol.tsv","r")
         case_file = inputfile.read()

@@ -13,3 +13,7 @@ varCall_filtering/scripts/TOBIvcf.py
 *.pyc
 
 *.pyc
+
+varCall_filtering/scripts/helpers.pyc
+
+*.pyc

@@ -37,7 +37,7 @@ def vcf_concat_cmdgen(args,case_name):
     return cmd
 
 def snpeffarray_cmdgen(args,case_name,source_dir):
-    cmd = "qsub -V -b y -sync y -t 1-25 -cwd -l mem=10G,time=2:: -pe smp 2 " \
+    cmd = "qsub -V -b y -sync y -t 1-23 -cwd -l mem=10G,time=2:: -pe smp 2 " \
         + "-N " + case_name \
         + " -e " + args.output + "/annotate/logs/ " \
         + "-o " + args.output+"/annotate/"+case_name+".o " \
@@ -52,7 +52,7 @@ def snpeffarray_cmdgen(args,case_name,source_dir):
     return cmd
 
 def snpsiftarray_cmdgen(args,case_name,vcf,source_dir):
-    cmd = "qsub -V -b y -sync y -t 1-25 -cwd -l mem=10G,time=2:: -pe smp 2 " \
+    cmd = "qsub -V -b y -sync y -t 1-23 -cwd -l mem=10G,time=2:: -pe smp 2 " \
         + "-N " + case_name \
         + " -e " + args.output + "/annotate/logs/ " \
         + "-o " + args.output+"/annotate/"+case_name+".o " \
@@ -68,7 +68,7 @@ def snpsiftarray_cmdgen(args,case_name,vcf,source_dir):
     return cmd
 
 def snpdbnsfparray_cmdgen(args,case_name,dbnsfp,source_dir,dbnsfp_header):
-    cmd = "qsub -V -b y -sync y -t 1-25 -cwd -l mem=10G,time=4:: -pe smp 2 " \
+    cmd = "qsub -V -b y -sync y -t 1-23 -cwd -l mem=10G,time=4:: -pe smp 2 " \
         + "-N " + case_name \
         + " -e " + args.output + "/annotate/logs/ " \
         + "-o " + args.output+"/annotate/logs/"+case_name+".o " \
@@ -87,7 +87,7 @@ def snpdbnsfparray_cmdgen(args,case_name,dbnsfp,source_dir,dbnsfp_header):
 def vcf_snp_concat_cmdgen(args,case_name):
     #generate command for vcf-concat
     vcflist = []
-    for i in range(1,23) + ['X', 'Y', 'MT']:
+    for i in range(1,23) + ['MISC']:
         vcfname = args.output + "/annotate/"+case_name+"."+ str(i) + ".eff.vcf"
         vcflist.append(vcfname)
     vcfstr = " ".join(vcflist)
@@ -108,7 +108,7 @@ def oneEff_cmdgen(args,case_name,source_dir):
     return cmd
 
 def filterarray_cmdgen(args,case_name,source_dir,whichscript):
-    cmd = "qsub -V -b y -sync y -t 1-25 -cwd -l mem=10G,time=4:: -pe smp 2 " \
+    cmd = "qsub -V -b y -sync y -t 1-23 -cwd -l mem=10G,time=4:: -pe smp 2 " \
         + "-N " + case_name \
         + " -e " + args.output + "/filter/logs/ " \
         + "-o " + args.output+"/filter/logs/ " \
@@ -198,6 +198,11 @@ def check_main_args(args):
         sys.exit("[ERROR]: Missing required '--steps' argument.")
     if args.cluster == None:
         sys.exit("[ERROR]: Missing rquired '--cluster' argument.")
+    #check for '/' at end of directories. remove if there
+    if re.search(".*\/$",args.inputdir):
+        args.inputdir = args.inputdir[:-1]
+    if re.search(".*\/$",args.output):
+        args.output = args.output[:-1]
         
 def check_varcall_args(args):
     if args.ref == None:
@@ -278,3 +283,19 @@ def snpdbnsfp_cmdgen(args,case_name,dbnsfp,header):
     if(args.debug):
         print(cmd)
     return cmd
+
+def split_vcf(args,case_name,step):
+    if args.debug:
+        print("[Splitting vcf file by chromosome]")
+    for chrom in range(1,23):
+        if args.debug:
+            print("[Chromosome " + str(chrom) + "]")
+        runShellCmd("vcftools --recode --recode-INFO-all --vcf "
+            + args.inputdir + "/" + case_name +".vcf" 
+            +" --out " + args.output +"/"+ step+ "/"+ case_name +"."+ str(chrom) +" --chr " + str(chrom)) 
+    runShellCmd("vcftools --recode --recode-INFO-all --vcf "
+        + args.inputdir + "/" + case_name +".vcf" 
+        +" --out " + args.output +"/"+ step+ "/"+ case_name +".MISC --not-chr 1 --not-chr 2 --not-chr 3" +
+        " --not-chr 4 --not-chr 5 --not-chr 6 --not-chr 7 --not-chr 8 --not-chr 9 --not-chr 10 "+
+        "--not-chr 11 --not-chr 12 --not-chr 13 --not-chr 14 --not-chr 15 --not-chr 16 --not-chr 17 " +
+        "--not-chr 18 --not-chr 19 --not-chr 20 --not-chr 21 --not-chr 22")

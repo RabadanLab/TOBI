@@ -47,9 +47,7 @@ case $SGE_TASK_ID in
 	20) c="20";;
 	21) c="21";;
 	22) c="22";;
-	23) c="X";;
-	24) c="Y";;
-	25) c="MT";;
+	23) c="MISC";;
 esac
 
 echo "[region] "$c

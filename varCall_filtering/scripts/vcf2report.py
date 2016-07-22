@@ -71,8 +71,10 @@ def to_tsv(input_str,case_name):
 						output += field + "\t"
 				output += "\n"
 			else:
-				# print case name
-				output += case_name + "\t"
+				# print case name removing .chr.recode suffix
+				temp = case_name.split(".")
+				temp = ".".join(temp[:-2])
+				output += temp + "\t"
 				myfields = line.split("\t") 
 				for i,field in enumerate(myfields):
 					if (myheader[i] == "is"):
