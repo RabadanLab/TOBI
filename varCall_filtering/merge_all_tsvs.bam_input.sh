@@ -32,7 +32,7 @@ if [[ $stepstr == *1* ]]; then
 		    ${outputdir}/${case_name}/output_folder/all_mutations_${case_name}.txt
 		
 		list_files=""
-		for i in {1..74}
+		for i in {1..73}
 		do
 			
 			# check if the tsv file is empty
